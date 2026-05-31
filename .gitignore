@@ -1,0 +1,14 @@
+.dart_tool/
+.packages
+build/
+flutter_*.png
+*.iml
+.idea/
+.metadata
+*.lock
+.gradle/
+local.properties
+android/.gradle/
+android/app/build/
+*.apk
+*.aab
