@@ -37,14 +37,14 @@ class YoyotimeApp extends ConsumerWidget {
       routerConfig: router,
       theme: FlexThemeData.light(
         scheme: FlexScheme.green,
-        surfaceMode: FlexSurfaceMode.highScaffold,
+        surfaceMode: FlexSurfaceMode.high,
         blendLevel: 12,
         appBarStyle: FlexAppBarStyle.background,
         useMaterial3: true,
       ),
       darkTheme: FlexThemeData.dark(
         scheme: FlexScheme.green,
-        surfaceMode: FlexSurfaceMode.highScaffold,
+        surfaceMode: FlexSurfaceMode.high,
         blendLevel: 12,
         appBarStyle: FlexAppBarStyle.background,
         useMaterial3: true,

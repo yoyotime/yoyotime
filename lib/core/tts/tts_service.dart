@@ -21,9 +21,9 @@ class TtsService {
     await _tts.setPitch(1.0);
     await _tts.setSpeechRate(_speed);
     if (_voice != null) {
-      final voiceName = _voice;
+      final voiceName = _voice!;
       try {
-        await _tts.setVoice({'name': voiceName, 'locale': 'zh-CN'});
+        await _tts.setVoice(<String, String>{'name': voiceName, 'locale': 'zh-CN'});
       } catch (_) {}
     }
 

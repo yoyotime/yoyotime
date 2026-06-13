@@ -160,9 +160,9 @@ for /f "tokens=1,2 delims=@" %%a in ("%REMOTE_URL%") do (
 )
 
 setlocal enabledelayedexpansion
-set "MIRRORS=ghfast.top mirror.ghproxy.com ghproxy.com codeload.github.com github.com"
+set "MIRRORS=ghfast.top mirror.ghproxy.com ghproxy.com gh-proxy.com github.akams.cn gh-proxy.ygxz.in codeload.github.com github.com"
 set TRIES=0
-set MAX_TRIES=5
+set MAX_TRIES=8
 set SUCCESS=0
 
 for %%M in (%MIRRORS%) do (
@@ -175,6 +175,8 @@ for %%M in (%MIRRORS%) do (
             echo [OK] Tag %ver% pushed via %%M
             set SUCCESS=1
             goto :RELEASE_DONE
+        ) else (
+            ping -n 2 127.0.0.1 >nul 2>&1
         )
     )
 )
