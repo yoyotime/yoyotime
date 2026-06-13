@@ -123,7 +123,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
           const SizedBox(height: 12),
           Card(
             elevation: 0,
-            color: theme.colorScheme.surfaceContainerLow,
+            color: theme.colorScheme.surfaceVariant,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

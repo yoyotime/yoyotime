@@ -3,6 +3,7 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   errors:
     invalid_annotation_target: ignore
+    unused_import: ignore
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
@@ -13,3 +14,4 @@ linter:
     prefer_const_constructors: false
     prefer_const_declarations: false
     use_key_in_widget_constructors: false
+    unawaited_futures: false

@@ -5,10 +5,10 @@ class HomeShell extends StatelessWidget {
   final Widget child;
   const HomeShell({super.key, required this.child});
 
-  static const _tabs = [
+  static final _tabs = [
     _TabItem(icon: Icons.wb_sunny_outlined, label: '今日', path: '/feed'),
     _TabItem(icon: Icons.hearing_outlined, label: '听', path: '/feed'),
-    _TabItem(icon: Icons.dove_outlined, label: '我', path: '/preferences'),
+    _TabItem(icon: Icons.person_outline, label: '我', path: '/preferences'),
   ];
 
   int _currentIndex(BuildContext context) {

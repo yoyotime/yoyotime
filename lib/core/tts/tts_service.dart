@@ -21,8 +21,9 @@ class TtsService {
     await _tts.setPitch(1.0);
     await _tts.setSpeechRate(_speed);
     if (_voice != null) {
+      final voiceName = _voice;
       try {
-        await _tts.setVoice({'name': _voice, 'locale': 'zh-CN'});
+        await _tts.setVoice({'name': voiceName, 'locale': 'zh-CN'});
       } catch (_) {}
     }
 
@@ -56,7 +57,7 @@ class TtsService {
       final list = await _tts.getVoices;
       if (list is List) {
         return list
-            .whereType<Map>()
+            .whereType<Map<dynamic, dynamic>>()
             .map((m) => m.map((k, v) => MapEntry(k.toString(), v.toString())))
             .toList();
       }
