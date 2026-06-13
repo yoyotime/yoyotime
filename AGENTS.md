@@ -39,3 +39,8 @@
 ## 发布流程
 - 打标签 `v*.*.*`（如 `v0.1.0`）并推送：`git tag v0.1.0 && git push origin v0.1.0`
 - CI 自动构建并发布 Release
+
+## 最快镜像
+- `gh-proxy.com` 推送最快（实测通过 token push 成功）
+- yt.bat 镜像列表顺序：gh-proxy.com → ghfast.top → mirror.ghproxy.com → ... → github.com
+- push 格式：`https://TOKEN@gh-proxy.com/github.com/user/repo.git`

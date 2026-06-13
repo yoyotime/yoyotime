@@ -98,7 +98,7 @@ setlocal enabledelayedexpansion
 
 rem List of mirror hosts to try (Chinese domestic mirrors + fallback)
 rem Note: ghproxy-style proxies are mainly for read (clone); push usually only works on direct or codeload
-set "MIRRORS=ghfast.top mirror.ghproxy.com ghproxy.com gh-proxy.com github.akams.cn gh-proxy.ygxz.in codeload.github.com github.com"
+set "MIRRORS=gh-proxy.com ghfast.top mirror.ghproxy.com ghproxy.com github.akams.cn gh-proxy.ygxz.in codeload.github.com github.com"
 
 set TRIES=0
 set MAX_TRIES=8
@@ -110,7 +110,6 @@ for %%M in (%MIRRORS%) do (
         echo.
         echo [!TRIES!/!MAX_TRIES!] Trying mirror: %%M
         set "PUSH_URL=!AUTH!@%%M/!REPO_PATH!"
-        echo      !PUSH_URL!
         git push "!PUSH_URL!" main 2>nul
         if !errorlevel! equ 0 (
             echo.
@@ -119,7 +118,6 @@ for %%M in (%MIRRORS%) do (
             goto :PUSH_DONE
         ) else (
             echo      Failed, trying next...
-            rem Small delay before next attempt
             ping -n 2 127.0.0.1 >nul 2>&1
         )
     )
@@ -160,7 +158,7 @@ for /f "tokens=1,2 delims=@" %%a in ("%REMOTE_URL%") do (
 )
 
 setlocal enabledelayedexpansion
-set "MIRRORS=ghfast.top mirror.ghproxy.com ghproxy.com gh-proxy.com github.akams.cn gh-proxy.ygxz.in codeload.github.com github.com"
+set "MIRRORS=gh-proxy.com ghfast.top mirror.ghproxy.com ghproxy.com github.akams.cn gh-proxy.ygxz.in codeload.github.com github.com"
 set TRIES=0
 set MAX_TRIES=8
 set SUCCESS=0
