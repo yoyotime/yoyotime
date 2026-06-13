@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../core/storage/storage_service.dart';
 import '../../core/tts/tts_service.dart';
 import '../../shared/models/content.dart';
@@ -38,6 +37,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         _content = found;
         _isLoading = false;
       });
+      await storage.incrementDailyConsumedCount();
     } else {
       setState(() => _isLoading = false);
     }
@@ -73,12 +73,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(content.sourceName, style: theme.textTheme.titleSmall),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.open_in_browser),
-            onPressed: () => launchUrl(Uri.parse(content.sourceUrl)),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 80),
@@ -118,33 +112,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.link,
-                    size: 16,
-                    color: theme.colorScheme.outline,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      content.sourceUrl,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.outline,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

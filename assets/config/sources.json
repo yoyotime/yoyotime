@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "un_news",
+      "name": "联合国新闻",
+      "url": "https://news.un.org/feed/subscribe/zh/news/all/rss.xml",
+      "type": "rss",
+      "category": "international",
+      "topics": ["国际", "和平"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    },
+    {
+      "id": "xinhua_politics",
+      "name": "新华社时政",
+      "url": "http://www.news.cn/rss/politics.xml",
+      "type": "rss",
+      "category": "official",
+      "topics": ["时政"],
+      "enabled": true,
+      "updateIntervalMinutes": 60
+    },
+    {
+      "id": "xinhua_world",
+      "name": "新华社国际",
+      "url": "http://www.news.cn/rss/world.xml",
+      "type": "rss",
+      "category": "international",
+      "topics": ["国际"],
+      "enabled": true,
+      "updateIntervalMinutes": 60
+    },
+    {
+      "id": "xinhua_finance",
+      "name": "新华社财经",
+      "url": "http://www.news.cn/rss/finance.xml",
+      "type": "rss",
+      "category": "finance",
+      "topics": ["财经"],
+      "enabled": true,
+      "updateIntervalMinutes": 60
+    },
+    {
+      "id": "east_money",
+      "name": "东方财富",
+      "url": "http://rss.eastmoney.com/rss_partener.xml",
+      "type": "rss",
+      "category": "finance",
+      "topics": ["财经", "股市"],
+      "enabled": true,
+      "updateIntervalMinutes": 30
+    },
+    {
+      "id": "wallstreetcn",
+      "name": "华尔街见闻",
+      "url": "https://www.wallstreetcn.com/rss",
+      "type": "rss",
+      "category": "finance",
+      "topics": ["财经", "宏观"],
+      "enabled": true,
+      "updateIntervalMinutes": 60
+    },
+    {
+      "id": "36kr",
+      "name": "36氪",
+      "url": "https://36kr.com/feed",
+      "type": "rss",
+      "category": "tech",
+      "topics": ["科技", "商业"],
+      "enabled": true,
+      "updateIntervalMinutes": 60
+    },
+    {
+      "id": "solidot",
+      "name": "奇客Solidot",
+      "url": "https://www.solidot.org/index.rss",
+      "type": "rss",
+      "category": "independent",
+      "topics": ["科技", "社会", "独立"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    },
+    {
+      "id": "sspai",
+      "name": "少数派",
+      "url": "https://sspai.com/feed",
+      "type": "rss",
+      "category": "independent",
+      "topics": ["效率", "数码生活", "独立"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    },
+    {
+      "id": "ruanyifeng",
+      "name": "阮一峰",
+      "url": "https://www.ruanyifeng.com/blog/atom.xml",
+      "type": "rss",
+      "category": "independent",
+      "topics": ["科技", "周刊", "独立"],
+      "enabled": true,
+      "updateIntervalMinutes": 1440
+    },
+    {
+      "id": "bbc_zh",
+      "name": "BBC中文",
+      "url": "https://www.bbc.com/zhongwen/simp/index.xml",
+      "type": "rss",
+      "category": "international",
+      "topics": ["国际", "海外"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    },
+    {
+      "id": "dw_zh",
+      "name": "德国之声中文",
+      "url": "http://rss.dw.de/rdf/rss-chi-all",
+      "type": "rss",
+      "category": "international",
+      "topics": ["国际", "欧洲", "海外"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    },
+    {
+      "id": "cna_tw",
+      "name": "中央社",
+      "url": "https://www.cna.com.tw/rss/all.xml",
+      "type": "rss",
+      "category": "international",
+      "topics": ["台湾", "国际", "海外"],
+      "enabled": true,
+      "updateIntervalMinutes": 60
+    },
+    {
+      "id": "zaobao_sg",
+      "name": "联合早报",
+      "url": "https://feedx.net/rss/zaobao.xml",
+      "type": "rss",
+      "category": "international",
+      "topics": ["新加坡", "国际", "海外"],
+      "enabled": true,
+      "updateIntervalMinutes": 60
+    },
+    {
+      "id": "thenewslens_tw",
+      "name": "关键评论网",
+      "url": "https://www.thenewslens.com/feed/all",
+      "type": "rss",
+      "category": "independent",
+      "topics": ["台湾", "评论", "独立"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    },
+    {
+      "id": "nytimes_zh",
+      "name": "纽约时报中文",
+      "url": "http://cn.nytimes.com/rss/news.xml",
+      "type": "rss",
+      "category": "international",
+      "topics": ["国际", "海外", "深度"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    },
+    {
+      "id": "nikkei_zh",
+      "name": "日经中文",
+      "url": "http://feedx.net/rss/nikkei.xml",
+      "type": "rss",
+      "category": "finance",
+      "topics": ["日本", "财经", "亚洲"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
+    }
+  ]
+}

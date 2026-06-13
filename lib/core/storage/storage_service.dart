@@ -105,6 +105,21 @@ class StorageService {
     final dir = await getApplicationDocumentsDirectory();
     return File(p.join(dir.path, _contentsFile));
   }
+
+  Future<int> getDailyConsumedCount() async {
+    await init();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final key = 'daily_count_$today';
+    return _prefs.getInt(key) ?? 0;
+  }
+
+  Future<void> incrementDailyConsumedCount() async {
+    await init();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final key = 'daily_count_$today';
+    final current = _prefs.getInt(key) ?? 0;
+    await _prefs.setInt(key, current + 1);
+  }
 }
 
 extension on ContentItem {

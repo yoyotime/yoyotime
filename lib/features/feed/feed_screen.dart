@@ -19,12 +19,12 @@ class FeedScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => controller.load(),
+            onPressed: () => controller.refresh(),
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: controller.load,
+        onRefresh: controller.refresh,
         child: _buildBody(context, state, controller),
       ),
     );
@@ -102,11 +102,12 @@ class FeedScreen extends ConsumerWidget {
     FeedState state,
     FeedController controller,
   ) {
+    final isDone = state.error == '今天的内容看完了，明天见';
     return ListView(
       children: [
         const SizedBox(height: 120),
         Icon(
-          Icons.wb_cloudy_outlined,
+          isDone ? Icons.nightlight_round : Icons.wb_cloudy_outlined,
           size: 64,
           color: Theme.of(context).colorScheme.outline,
         ),
@@ -122,8 +123,8 @@ class FeedScreen extends ConsumerWidget {
         const SizedBox(height: 24),
         Center(
           child: FilledButton.tonal(
-            onPressed: () => controller.load(),
-            child: const Text('再试一次'),
+            onPressed: () => (isDone ? controller.refresh() : controller.load()),
+            child: Text(isDone ? '再刷几条' : '再试一次'),
           ),
         ),
       ],

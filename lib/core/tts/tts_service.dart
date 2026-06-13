@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class TtsService {
+class TtsService extends ChangeNotifier {
   late final FlutterTts _tts;
   bool _initialized = false;
   double _speed = 1.0;
@@ -29,15 +30,19 @@ class TtsService {
 
     _tts.setCompletionHandler(() {
       _isPlaying = false;
+      notifyListeners();
     });
     _tts.setCancelHandler(() {
       _isPlaying = false;
+      notifyListeners();
     });
     _tts.setErrorHandler((msg) {
       _isPlaying = false;
+      notifyListeners();
     });
 
     _initialized = true;
+    notifyListeners();
   }
 
   bool get isPlaying => _isPlaying;
@@ -46,7 +51,10 @@ class TtsService {
 
   Future<void> setSpeed(double speed) async {
     _speed = speed;
-    await _tts.setSpeechRate(speed);
+    notifyListeners();
+    if (_initialized) {
+      await _tts.setSpeechRate(speed);
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('tts_speed', speed);
   }
@@ -67,7 +75,8 @@ class TtsService {
 
   Future<void> setVoice(String? name) async {
     _voice = name;
-    if (name != null) {
+    notifyListeners();
+    if (_initialized && name != null) {
       try {
         await _tts.setVoice({'name': name, 'locale': 'zh-CN'});
       } catch (_) {}
@@ -78,10 +87,12 @@ class TtsService {
 
   Future<void> speak(String text) async {
     await init();
+    await _tts.setSpeechRate(_speed);
     if (_isPlaying) {
       await _tts.stop();
     }
     _isPlaying = true;
+    notifyListeners();
     await _tts.speak(text);
   }
 
@@ -89,6 +100,7 @@ class TtsService {
     if (_initialized) {
       await _tts.stop();
       _isPlaying = false;
+      notifyListeners();
     }
   }
 
@@ -101,6 +113,6 @@ class TtsService {
   }
 }
 
-final ttsServiceProvider = Provider<TtsService>((ref) {
+final ttsServiceProvider = ChangeNotifierProvider<TtsService>((ref) {
   return TtsService();
 });

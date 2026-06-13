@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "defaultPolicy": "normal",
+  "categories": {
+    "finance": {
+      "policy": "strict",
+      "rules": [
+        {
+          "type": "keyword",
+          "pattern": "崩盘|暴跌|恐慌|抛售|踩踏|血洗",
+          "action": "block",
+          "reason": "恐慌性表述"
+        },
+        {
+          "type": "keyword",
+          "pattern": "暴涨|翻倍|十倍|百倍|暴富",
+          "action": "block",
+          "reason": "煽动性表述"
+        },
+        {
+          "type": "keyword",
+          "pattern": "内幕|推荐股|涨停| guaranteed",
+          "action": "block",
+          "reason": "违规荐股"
+        },
+        {
+          "type": "keyword",
+          "pattern": "危机|崩盘|熊市|泡沫",
+          "action": "demote",
+          "reason": "负面渲染"
+        }
+      ]
+    },
+    "international": {
+      "policy": "normal",
+      "rules": [
+        {
+          "type": "keyword",
+          "pattern": "震惊|可怕|恐怖|末日|灭绝",
+          "action": "block",
+          "reason": "恐惧诉求"
+        },
+        {
+          "type": "keyword",
+          "pattern": "威胁|战争|冲突|制裁",
+          "action": "demote",
+          "reason": "可能含煽动性"
+        }
+      ]
+    },
+    "general": {
+      "policy": "normal",
+      "rules": [
+        {
+          "type": "keyword",
+          "pattern": "震惊|太可怕了|紧急|速看|删前速看|不转不是",
+          "action": "block",
+          "reason": "标题党/恐惧诉求"
+        },
+        {
+          "type": "keyword",
+          "pattern": "秘密|绝密|惊人|真相|千万别|后悔",
+          "action": "demote",
+          "reason": "煽动性表述"
+        }
+      ]
+    }
+  }
+}
