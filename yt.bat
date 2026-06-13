@@ -30,8 +30,8 @@ echo   1. ps       - open PowerShell tool menu
 echo   2. bash     - open Git Bash
 echo   3. status   - git status
 echo   4. commit   - commit (provide message after)
-echo   5. push     - push to main
-echo   6. release  - create release tag
+echo   5. push     - push to main (5 mirror retries)
+echo   6. release  - create release tag (5 mirror retries)
 echo   7. setup    - download gradle wrapper
 echo   8. fix      - fix stuck processes
 echo   9. help     - show help
@@ -74,7 +74,66 @@ git commit -m "%msg%"
 goto END
 
 :GIT_PUSH
-git push origin main
+echo.
+echo === Pushing to main (5 retry rounds via mirrors) ===
+echo.
+
+rem Extract repo path and auth from origin URL
+rem Format: https://TOKEN@github.com/user/repo.git
+set "REMOTE_URL="
+for /f "tokens=*" %%U in ('git remote get-url origin 2^>nul') do set "REMOTE_URL=%%U"
+
+if "%REMOTE_URL%"=="" (
+    echo [X] No git remote configured
+    goto END
+)
+
+rem Split on @ to get auth and path
+for /f "tokens=1,2 delims=@" %%a in ("%REMOTE_URL%") do (
+    set "AUTH=%%a"
+    set "REPO_PATH=%%b"
+)
+
+setlocal enabledelayedexpansion
+
+rem List of mirror hosts to try (Chinese domestic mirrors + fallback)
+rem Note: ghproxy-style proxies are mainly for read (clone); push usually only works on direct or codeload
+set "MIRRORS=ghfast.top mirror.ghproxy.com ghproxy.com gh-proxy.com github.akams.cn gh-proxy.ygxz.in codeload.github.com github.com"
+
+set TRIES=0
+set MAX_TRIES=8
+set SUCCESS=0
+
+for %%M in (%MIRRORS%) do (
+    if !TRIES! lss !MAX_TRIES! (
+        set /a TRIES+=1 >nul
+        echo.
+        echo [!TRIES!/!MAX_TRIES!] Trying mirror: %%M
+        set "PUSH_URL=!AUTH!@%%M/!REPO_PATH!"
+        echo      !PUSH_URL!
+        git push "!PUSH_URL!" main 2>nul
+        if !errorlevel! equ 0 (
+            echo.
+            echo [OK] Pushed successfully via %%M
+            set SUCCESS=1
+            goto :PUSH_DONE
+        ) else (
+            echo      Failed, trying next...
+            rem Small delay before next attempt
+            ping -n 2 127.0.0.1 >nul 2>&1
+        )
+    )
+)
+
+:PUSH_DONE
+endlocal & set "PUSH_SUCCESS=%SUCCESS%"
+
+if "%PUSH_SUCCESS%"=="0" (
+    echo.
+    echo [X] All %MAX_TRIES% attempts failed.
+    echo     Check network: Test-NetConnection github.com -Port 443
+    echo     Or try SSH: yt.bat bash
+)
 goto END
 
 :GIT_RELEASE
@@ -87,7 +146,41 @@ echo %ver% | findstr /b "v" >nul
 if errorlevel 1 set ver=v%ver%
 echo Creating tag %ver%...
 git tag %ver%
-git push origin %ver%
+
+rem Extract repo path and auth from origin URL
+set "REMOTE_URL="
+for /f "tokens=*" %%U in ('git remote get-url origin 2^>nul') do set "REMOTE_URL=%%U"
+if "%REMOTE_URL%"=="" (
+    echo [X] No git remote configured
+    goto END
+)
+for /f "tokens=1,2 delims=@" %%a in ("%REMOTE_URL%") do (
+    set "AUTH=%%a"
+    set "REPO_PATH=%%b"
+)
+
+setlocal enabledelayedexpansion
+set "MIRRORS=ghfast.top mirror.ghproxy.com ghproxy.com codeload.github.com github.com"
+set TRIES=0
+set MAX_TRIES=5
+set SUCCESS=0
+
+for %%M in (%MIRRORS%) do (
+    if !TRIES! lss !MAX_TRIES! (
+        set /a TRIES+=1 >nul
+        echo [!TRIES!/!MAX_TRIES!] Pushing tag via %%M
+        set "PUSH_URL=!AUTH!@%%M/!REPO_PATH!"
+        git push "!PUSH_URL!" %ver% 2>nul
+        if !errorlevel! equ 0 (
+            echo [OK] Tag %ver% pushed via %%M
+            set SUCCESS=1
+            goto :RELEASE_DONE
+        )
+    )
+)
+:RELEASE_DONE
+endlocal & set "RELEASE_SUCCESS=%SUCCESS%"
+if "%RELEASE_SUCCESS%"=="0" echo [X] All attempts failed
 goto END
 
 :SETUP
@@ -138,8 +231,8 @@ echo.
 echo Basic git operations (work without PowerShell):
 echo   yt.bat status              - show git status
 echo   yt.bat commit "msg"        - commit all changes
-echo   yt.bat push                - push to main
-echo   yt.bat release v0.2.0      - create and push tag
+echo   yt.bat push                - push to main (5 mirror retries)
+echo   yt.bat release v0.2.0      - create and push tag (5 mirror retries)
 echo   yt.bat setup               - download gradle wrapper
 echo   yt.bat fix                 - fix stuck processes
 echo.
