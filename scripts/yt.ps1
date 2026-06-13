@@ -147,7 +147,7 @@ function Cmd-Init() {
     Print-Info '初始化 git 仓库...'
     git init | Out-Null
     git config user.name 'yoyotime' 2>$null
-    git config user.email '444708960@qq.com' 2>$null
+    git config user.email 'dev@yoyotime.app' 2>$null
     Print-Success '完成'
 }
 

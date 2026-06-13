@@ -62,7 +62,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
             controller: _descController,
             maxLines: 5,
             decoration: const InputDecoration(
-              hintText: '例如：我是一位妈妈，关心儿童安全和防拐卖信息，关注国家大事和和平消息……',
+              hintText: '例如：我关心国际局势、社会新闻和科技动态……',
               border: OutlineInputBorder(),
             ),
             onChanged: (v) => controller.setDescription(v),
