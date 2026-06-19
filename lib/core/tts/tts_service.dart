@@ -9,6 +9,9 @@ class TtsService extends ChangeNotifier {
   double _speed = 1.0;
   String? _voice;
   bool _isPlaying = false;
+  String? _lastError;
+
+  String? get lastError => _lastError;
 
   Future<void> init({bool skipPlatformInit = false}) async {
     if (_initialized) return;
@@ -31,6 +34,7 @@ class TtsService extends ChangeNotifier {
 
         _tts.setCompletionHandler(() {
           _isPlaying = false;
+          _lastError = null;
           notifyListeners();
         });
         _tts.setCancelHandler(() {
@@ -39,10 +43,11 @@ class TtsService extends ChangeNotifier {
         });
         _tts.setErrorHandler((msg) {
           _isPlaying = false;
+          _lastError = '朗读出错: $msg';
           notifyListeners();
         });
-      } catch (_) {
-        // TTS init failed, will retry on next speak
+      } catch (e) {
+        _lastError = 'TTS 初始化失败';
       }
     }
 
@@ -98,10 +103,12 @@ class TtsService extends ChangeNotifier {
         await _tts.stop();
       }
       _isPlaying = true;
+      _lastError = null;
       notifyListeners();
       await _tts.speak(text);
-    } catch (_) {
+    } catch (e) {
       _isPlaying = false;
+      _lastError = '朗读失败，请检查语音设置';
       notifyListeners();
     }
   }

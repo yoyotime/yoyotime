@@ -64,6 +64,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final text = stripHtml('${content.title}。${content.fullText ?? content.summary}');
     ref.read(eventBusProvider).publish(TtsPlaybackStartedEvent(contentId: content.id));
     await tts.speak(text);
+
+    if (tts.lastError != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(tts.lastError!),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Future<void> _stop() async {
