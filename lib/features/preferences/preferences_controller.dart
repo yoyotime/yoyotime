@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/repository/repository_providers.dart';
+import '../../domain/repository/preferences_repository.dart';
 import '../../domain/event/event_bus_provider.dart';
 import '../../domain/event/events.dart';
 import '../../domain/model/models.dart';

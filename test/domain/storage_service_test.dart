@@ -122,7 +122,7 @@ void main() {
       });
     });
 
-    group('trackRead', () async () {
+    group('trackRead', () {
       test('should track read', () async {
         await service.trackRead('content-1');
         await service.trackRead('content-1'); // duplicate
