@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/storage/storage_service.dart';
 import '../../core/tts/tts_service.dart';
 import '../../shared/models/content.dart';
+import '../../shared/utils/html_utils.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
   final String contentId;
@@ -47,7 +48,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final content = _content;
     if (content == null) return;
     final tts = ref.read(ttsServiceProvider);
-    final text = '${content.title}。${content.fullText ?? content.summary}';
+    final text = stripHtml('${content.title}。${content.fullText ?? content.summary}');
     await tts.speak(text);
   }
 
@@ -105,7 +106,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              content.fullText ?? content.summary,
+              stripHtml(content.fullText ?? content.summary),
               style: theme.textTheme.bodyLarge?.copyWith(
                 height: 1.8,
                 fontSize: 16,

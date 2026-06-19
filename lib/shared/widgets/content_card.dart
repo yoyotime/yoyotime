@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../models/content.dart';
+import '../utils/html_utils.dart';
 
 class ContentCard extends StatelessWidget {
   final ContentItem item;
@@ -68,7 +69,7 @@ class ContentCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                item.summary,
+                stripHtml(item.summary),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                   height: 1.5,

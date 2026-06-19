@@ -7,13 +7,14 @@ class HomeShell extends StatelessWidget {
 
   static final _tabs = [
     _TabItem(icon: Icons.wb_sunny_outlined, label: '今日', path: '/feed'),
-    _TabItem(icon: Icons.hearing_outlined, label: '听', path: '/feed'),
+    _TabItem(icon: Icons.hearing_outlined, label: '听', path: '/listen'),
     _TabItem(icon: Icons.person_outline, label: '我', path: '/preferences'),
   ];
 
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/preferences')) return 2;
+    if (location.startsWith('/listen')) return 1;
     return 0;
   }
 

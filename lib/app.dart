@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'features/feed/feed_screen.dart';
 import 'features/reader/reader_screen.dart';
+import 'features/listen/listen_screen.dart';
 import 'features/preferences/preferences_screen.dart';
 import 'features/shell/home_shell.dart';
 
@@ -15,6 +16,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, __, child) => HomeShell(child: child),
         routes: [
           GoRoute(path: '/feed', builder: (_, __) => const FeedScreen()),
+          GoRoute(path: '/listen', builder: (_, __) => const ListenScreen()),
           GoRoute(path: '/preferences', builder: (_, __) => const PreferencesScreen()),
         ],
       ),

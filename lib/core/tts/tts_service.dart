@@ -18,29 +18,32 @@ class TtsService extends ChangeNotifier {
     _voice = prefs.getString('tts_voice');
 
     if (!skipPlatformInit) {
-      await _tts.setLanguage('zh-CN');
-      await _tts.setVolume(1.0);
-      await _tts.setPitch(1.0);
-      await _tts.setSpeechRate(_speed);
-      if (_voice != null) {
-        final voiceName = _voice!;
-        try {
-          await _tts.setVoice(<String, String>{'name': voiceName, 'locale': 'zh-CN'});
-        } catch (_) {}
-      }
+      try {
+        await _tts.setLanguage('zh-CN');
+        await _tts.setVolume(1.0);
+        await _tts.setPitch(1.0);
+        await _tts.setSpeechRate(_speed);
+        if (_voice != null && _voice!.isNotEmpty) {
+          try {
+            await _tts.setVoice(<String, String>{'name': _voice!, 'locale': 'zh-CN'});
+          } catch (_) {}
+        }
 
-      _tts.setCompletionHandler(() {
-        _isPlaying = false;
-        notifyListeners();
-      });
-      _tts.setCancelHandler(() {
-        _isPlaying = false;
-        notifyListeners();
-      });
-      _tts.setErrorHandler((msg) {
-        _isPlaying = false;
-        notifyListeners();
-      });
+        _tts.setCompletionHandler(() {
+          _isPlaying = false;
+          notifyListeners();
+        });
+        _tts.setCancelHandler(() {
+          _isPlaying = false;
+          notifyListeners();
+        });
+        _tts.setErrorHandler((msg) {
+          _isPlaying = false;
+          notifyListeners();
+        });
+      } catch (_) {
+        // TTS init failed, will retry on next speak
+      }
     }
 
     _initialized = true;
@@ -88,14 +91,19 @@ class TtsService extends ChangeNotifier {
   }
 
   Future<void> speak(String text) async {
-    await init();
-    await _tts.setSpeechRate(_speed);
-    if (_isPlaying) {
-      await _tts.stop();
+    try {
+      await init();
+      await _tts.setSpeechRate(_speed);
+      if (_isPlaying) {
+        await _tts.stop();
+      }
+      _isPlaying = true;
+      notifyListeners();
+      await _tts.speak(text);
+    } catch (_) {
+      _isPlaying = false;
+      notifyListeners();
     }
-    _isPlaying = true;
-    notifyListeners();
-    await _tts.speak(text);
   }
 
   Future<void> stop() async {
