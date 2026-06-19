@@ -142,6 +142,34 @@ class StorageService implements ContentRepository, PreferencesRepository {
     final cached = await getCachedContents();
     return cached.where((item) => bookmarkedIds.contains(item.id)).toList();
   }
+
+  Future<List<String>> getWeeklyReadIds() async {
+    await init();
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 7));
+    final ids = <String>[];
+
+    for (var i = 0; i < 7; i++) {
+      final date = weekAgo.add(Duration(days: i));
+      final dateStr = date.toIso8601String().substring(0, 10);
+      final key = 'read_ids_$dateStr';
+      final dayIds = _prefs.getStringList(key) ?? [];
+      ids.addAll(dayIds);
+    }
+
+    return ids.toSet().toList();
+  }
+
+  Future<void> trackRead(String contentId) async {
+    await init();
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final key = 'read_ids_$today';
+    final ids = _prefs.getStringList(key) ?? [];
+    if (!ids.contains(contentId)) {
+      ids.add(contentId);
+      await _prefs.setStringList(key, ids);
+    }
+  }
 }
 
 final storageServiceProvider = Provider<StorageService>((ref) {

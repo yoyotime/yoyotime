@@ -8,6 +8,7 @@ import '../../domain/model/models.dart';
 import '../../shared/utils/html_utils.dart';
 import '../../shared/widgets/breathing_animation.dart';
 import '../../core/tts/tts_service.dart';
+import '../../core/storage/storage_service.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
   final String contentId;
@@ -44,6 +45,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         _isLoading = false;
       });
       await repo.incrementDailyConsumedCount();
+      if (repo is StorageService) {
+        await repo.trackRead(found.id);
+      }
       ref.read(eventBusProvider).publish(ContentDisplayedEvent(
         contentId: found.id,
         sourceName: found.sourceName,

@@ -6,6 +6,7 @@ import 'features/feed/feed_screen.dart';
 import 'features/reader/reader_screen.dart';
 import 'features/listen/listen_screen.dart';
 import 'features/collection/collection_screen.dart';
+import 'features/review/reading_review_screen.dart';
 import 'features/preferences/preferences_screen.dart';
 import 'features/shell/home_shell.dart';
 import 'features/preferences/preferences_controller.dart';
@@ -21,6 +22,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/feed', builder: (_, __) => const FeedScreen()),
           GoRoute(path: '/listen', builder: (_, __) => const ListenScreen()),
           GoRoute(path: '/collection', builder: (_, __) => const CollectionScreen()),
+          GoRoute(path: '/review', builder: (_, __) => const ReadingReviewScreen()),
           GoRoute(path: '/preferences', builder: (_, __) => const PreferencesScreen()),
         ],
       ),
