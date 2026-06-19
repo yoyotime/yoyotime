@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../core/services/connectivity_service.dart';
 import '../../domain/service/greeting_service_provider.dart';
 import '../../domain/model/greeting.dart';
 import '../../shared/widgets/content_card.dart';
 import 'feed_controller.dart';
+import 'offline_screen.dart';
 
 class FeedScreen extends ConsumerWidget {
   const FeedScreen({super.key});
@@ -14,6 +16,7 @@ class FeedScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(feedControllerProvider);
     final controller = ref.read(feedControllerProvider.notifier);
+    final connectivity = ref.watch(connectivityStatusProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -27,7 +30,16 @@ class FeedScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: controller.refresh,
-        child: _buildBody(context, state, controller, ref),
+        child: connectivity.when(
+          data: (status) {
+            if (status == ConnectivityStatus.offline && state.items.isEmpty) {
+              return const OfflineScreen();
+            }
+            return _buildBody(context, state, controller, ref);
+          },
+          loading: () => _buildBody(context, state, controller, ref),
+          error: (_, __) => _buildBody(context, state, controller, ref),
+        ),
       ),
     );
   }
