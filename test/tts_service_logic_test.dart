@@ -1,5 +1,4 @@
-import 'dart:async';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 /// 模拟 ChangeNotifier 行为，验证 TtsService 的 setSpeed 通知机制
 class MockNotifier {

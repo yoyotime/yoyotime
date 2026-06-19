@@ -105,7 +105,13 @@ class PreferencesScreen extends ConsumerWidget {
                           divisions: 15,
                           label: '${prefs.ttsSpeed.toStringAsFixed(1)}x',
                           onChanged: (v) {
-                            controller.update(prefs.copyWith(ttsSpeed: v));
+                            controller.update(UserPreferences(
+                              description: prefs.description,
+                              interests: prefs.interests,
+                              blocklist: prefs.blocklist,
+                              preferAudio: prefs.preferAudio,
+                              ttsSpeed: v,
+                            ));
                             ref.read(ttsServiceProvider).setSpeed(v);
                           },
                         ),

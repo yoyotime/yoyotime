@@ -233,7 +233,8 @@ class FeedFetcher {
     final summary = item.summary?.trim();
     final content = item.content?.trim();
     final link = item.links?.isNotEmpty == true ? item.links!.first.href?.trim() ?? '' : '';
-    final published = item.published ?? now;
+    final rawPublished = item.published;
+    final published = (rawPublished is DateTime) ? rawPublished : now;
     final topics = [...source.topics];
     final fullText = content ?? summary;
     final displaySummary = _truncateSummary(summary ?? content);
