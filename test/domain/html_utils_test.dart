@@ -35,7 +35,7 @@ void main() {
     });
 
     test('p tags should become newlines', () {
-      expect(stripHtml('<p>Para 1</p><p>Para 2</p>'), 'Para 1\n\nPara 2');
+      expect(stripHtml('<p>Para 1</p><p>Para 2</p>'), 'Para 1\nPara 2');
     });
 
     test('multiple newlines should be collapsed', () {

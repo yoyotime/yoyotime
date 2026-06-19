@@ -77,8 +77,8 @@ void main() {
     test('empty topics list should not crash', () {
       final item = ContentItem(
         id: 'test',
-        title: 'title',
-        summary: 'summary',
+        title: '',
+        summary: '',
         sourceName: 'source',
         sourceUrl: '',
         topics: [],

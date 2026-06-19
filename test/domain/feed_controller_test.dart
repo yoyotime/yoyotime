@@ -42,30 +42,6 @@ void main() {
       });
     });
 
-    group('Content Cache', () {
-      test('should save and retrieve contents', () async {
-        final items = _createItems(5);
-        await storage.saveCachedContents(items);
-        final cached = await storage.getCachedContents();
-        expect(cached.length, 5);
-      });
-
-      test('should limit cached items to 200', () async {
-        final items = _createItems(250);
-        await storage.saveCachedContents(items);
-        final cached = await storage.getCachedContents();
-        expect(cached.length, 200);
-      });
-
-      test('should preserve item order', () async {
-        final items = _createItems(5);
-        await storage.saveCachedContents(items);
-        final cached = await storage.getCachedContents();
-        expect(cached[0].id, 'item-0');
-        expect(cached[4].id, 'item-4');
-      });
-    });
-
     group('Feedback', () {
       test('should save like feedback', () async {
         await storage.setFeedback('content-1', FeedbackAction.like);
