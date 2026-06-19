@@ -111,12 +111,15 @@ class ContentFeed {
 
 enum FeedbackAction { like, dislike, delete, bookmark }
 
+enum AppThemeMode { light, dark, reading, system }
+
 class UserPreferences {
   final String description;
   final List<String> interests;
   final List<String> blocklist;
   final bool preferAudio;
   final double ttsSpeed;
+  final AppThemeMode themeMode;
 
   const UserPreferences({
     required this.description,
@@ -124,6 +127,7 @@ class UserPreferences {
     this.blocklist = const [],
     this.preferAudio = false,
     this.ttsSpeed = 1.0,
+    this.themeMode = AppThemeMode.system,
   });
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) => UserPreferences(
@@ -132,6 +136,10 @@ class UserPreferences {
         blocklist: List<String>.from(json['blocklist'] ?? []),
         preferAudio: json['prefer_audio'] as bool? ?? false,
         ttsSpeed: (json['tts_speed'] as num?)?.toDouble() ?? 1.0,
+        themeMode: AppThemeMode.values.firstWhere(
+          (e) => e.name == json['theme_mode'],
+          orElse: () => AppThemeMode.system,
+        ),
       );
 
   Map<String, dynamic> toJson() => {
@@ -140,5 +148,6 @@ class UserPreferences {
         'blocklist': blocklist,
         'prefer_audio': preferAudio,
         'tts_speed': ttsSpeed,
+        'theme_mode': themeMode.name,
       };
 }

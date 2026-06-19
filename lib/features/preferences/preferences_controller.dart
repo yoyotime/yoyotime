@@ -65,6 +65,7 @@ extension on UserPreferences {
     List<String>? blocklist,
     bool? preferAudio,
     double? ttsSpeed,
+    AppThemeMode? themeMode,
   }) =>
       UserPreferences(
         description: description ?? this.description,
@@ -72,5 +73,6 @@ extension on UserPreferences {
         blocklist: blocklist ?? this.blocklist,
         preferAudio: preferAudio ?? this.preferAudio,
         ttsSpeed: ttsSpeed ?? this.ttsSpeed,
+        themeMode: themeMode ?? this.themeMode,
       );
 }

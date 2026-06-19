@@ -7,6 +7,8 @@ import 'features/reader/reader_screen.dart';
 import 'features/listen/listen_screen.dart';
 import 'features/preferences/preferences_screen.dart';
 import 'features/shell/home_shell.dart';
+import 'features/preferences/preferences_controller.dart';
+import 'shared/models/content.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -28,26 +30,65 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
+final themeModeProvider = Provider<ThemeMode>((ref) {
+  final prefs = ref.watch(preferencesControllerProvider);
+  switch (prefs.themeMode) {
+    case AppThemeMode.light:
+      return ThemeMode.light;
+    case AppThemeMode.dark:
+      return ThemeMode.dark;
+    case AppThemeMode.reading:
+      return ThemeMode.light;
+    case AppThemeMode.system:
+      return ThemeMode.system;
+  }
+});
+
+ThemeData _readingTheme() {
+  return FlexThemeData.light(
+    scheme: FlexScheme.sakura,
+    appBarStyle: FlexAppBarStyle.background,
+    useMaterial3: true,
+    subThemesData: const FlexSubThemesData(
+      inputDecoratorBorderType: FlexInputBorderType.outline,
+    ),
+  ).copyWith(
+    scaffoldBackgroundColor: const Color(0xFFF5E6D3),
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFF8D6E63),
+      brightness: Brightness.light,
+    ),
+  );
+}
+
 class YoyotimeApp extends ConsumerWidget {
   const YoyotimeApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
+
+    final lightTheme = FlexThemeData.light(
+      scheme: FlexScheme.green,
+      appBarStyle: FlexAppBarStyle.background,
+      useMaterial3: true,
+    );
+
+    final darkTheme = FlexThemeData.dark(
+      scheme: FlexScheme.green,
+      appBarStyle: FlexAppBarStyle.background,
+      useMaterial3: true,
+    );
+
+    final readingTheme = _readingTheme();
+
     return MaterialApp.router(
       title: '悠悠时光',
       routerConfig: router,
-      theme: FlexThemeData.light(
-        scheme: FlexScheme.green,
-        appBarStyle: FlexAppBarStyle.background,
-        useMaterial3: true,
-      ),
-      darkTheme: FlexThemeData.dark(
-        scheme: FlexScheme.green,
-        appBarStyle: FlexAppBarStyle.background,
-        useMaterial3: true,
-      ),
-      themeMode: ThemeMode.system,
+      theme: themeMode == ThemeMode.light ? lightTheme : lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
       debugShowCheckedModeBanner: false,
     );
   }

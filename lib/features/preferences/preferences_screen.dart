@@ -131,6 +131,78 @@ class PreferencesScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
+          _sectionHeader(context, '外观'),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('主题模式', style: theme.textTheme.bodyMedium),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _ThemeChip(
+                        icon: Icons.brightness_auto,
+                        label: '跟随系统',
+                        selected: prefs.themeMode == AppThemeMode.system,
+                        onTap: () => controller.update(UserPreferences(
+                          description: prefs.description,
+                          interests: prefs.interests,
+                          blocklist: prefs.blocklist,
+                          preferAudio: prefs.preferAudio,
+                          ttsSpeed: prefs.ttsSpeed,
+                          themeMode: AppThemeMode.system,
+                        )),
+                      ),
+                      _ThemeChip(
+                        icon: Icons.light_mode,
+                        label: '浅色',
+                        selected: prefs.themeMode == AppThemeMode.light,
+                        onTap: () => controller.update(UserPreferences(
+                          description: prefs.description,
+                          interests: prefs.interests,
+                          blocklist: prefs.blocklist,
+                          preferAudio: prefs.preferAudio,
+                          ttsSpeed: prefs.ttsSpeed,
+                          themeMode: AppThemeMode.light,
+                        )),
+                      ),
+                      _ThemeChip(
+                        icon: Icons.dark_mode,
+                        label: '深色',
+                        selected: prefs.themeMode == AppThemeMode.dark,
+                        onTap: () => controller.update(UserPreferences(
+                          description: prefs.description,
+                          interests: prefs.interests,
+                          blocklist: prefs.blocklist,
+                          preferAudio: prefs.preferAudio,
+                          ttsSpeed: prefs.ttsSpeed,
+                          themeMode: AppThemeMode.dark,
+                        )),
+                      ),
+                      _ThemeChip(
+                        icon: Icons.menu_book,
+                        label: '阅读',
+                        selected: prefs.themeMode == AppThemeMode.reading,
+                        onTap: () => controller.update(UserPreferences(
+                          description: prefs.description,
+                          interests: prefs.interests,
+                          blocklist: prefs.blocklist,
+                          preferAudio: prefs.preferAudio,
+                          ttsSpeed: prefs.ttsSpeed,
+                          themeMode: AppThemeMode.reading,
+                        )),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
           _sectionHeader(context, '分享'),
           Card(
             child: ListTile(
@@ -351,6 +423,35 @@ class PreferencesScreen extends ConsumerWidget {
     final url = 'https://github.com/anomaloco/yoyotime/releases/latest';
     await Share.share(
       '推荐一个安静的好 App——悠悠时光，每天 10 条精选内容，反焦虑、反成瘾、反窥探。下载：$url',
+    );
+  }
+}
+
+class _ThemeChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ThemeChip({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ChoiceChip(
+      avatar: Icon(icon, size: 18, color: selected ? theme.colorScheme.onPrimary : null),
+      label: Text(label),
+      selected: selected,
+      onSelected: (_) => onTap(),
+      selectedColor: theme.colorScheme.primary,
+      labelStyle: TextStyle(
+        color: selected ? theme.colorScheme.onPrimary : null,
+      ),
     );
   }
 }
