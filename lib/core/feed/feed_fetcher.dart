@@ -196,8 +196,13 @@ class FeedFetcher {
 
     final description = item.description?.trim();
     final link = item.link?.trim() ?? '';
+    final DateTime pubDate;
     final rawPubDate = item.pubDate;
-    final pubDate = (rawPubDate is DateTime) ? rawPubDate : now;
+    if (rawPubDate is DateTime) {
+      pubDate = rawPubDate;
+    } else {
+      pubDate = now;
+    }
 
     final categories = item.categories
             ?.map((c) => c.value?.trim())
@@ -234,8 +239,13 @@ class FeedFetcher {
     final summary = item.summary?.trim();
     final content = item.content?.trim();
     final link = item.links?.isNotEmpty == true ? item.links!.first.href?.trim() ?? '' : '';
+    final DateTime published;
     final rawPublished = item.published;
-    final published = (rawPublished is DateTime) ? rawPublished : now;
+    if (rawPublished is DateTime) {
+      published = rawPublished;
+    } else {
+      published = now;
+    }
     final topics = [...source.topics];
     final fullText = content ?? summary;
     final displaySummary = _truncateSummary(summary ?? content);
