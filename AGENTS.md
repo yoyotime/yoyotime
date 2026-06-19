@@ -62,16 +62,18 @@ git push origin test-xxx
 # 等 ✅ 通过后再合并到 main
 ```
 
-### 方式二：本地快速检查
-Windows: `pre_release_check.bat`（不需要 Flutter，只检查文件/语法）
-
-### 检查项
+### 方式二：本地快速检查（秒级）
+```bash
+powershell -ExecutionPolicy Bypass -File preflight.ps1
+```
+检查项：
 1. 关键文件存在（main.dart, app.dart, pubspec.yaml 等）
-2. AndroidManifest 配置正确
-3. pubspec.yaml 语法
-4. git 状态（未提交文件）
-5. print() 调试语句
-6. CI 最终验证（preflight.yml → build-apk.yml）
+2. 所有 import 路径指向存在的文件
+
+### 注意事项
+- preflight.ps1 只检查 import 路径，不检查类型（Flutter 内置类型太多会误报）
+- 类型错误、测试失败等由 CI 的 preflight.yml 捕获
+- **如果 preflight.ps1 通过但 CI 失败，说明是类型/逻辑错误，需要看 CI 日志**
 
 ## 最快镜像
 - `gh-proxy.com` 推送最快
