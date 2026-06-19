@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/storage/storage_service.dart';
 import '../../core/tts/tts_service.dart';
+import '../../domain/event/event_bus_provider.dart';
+import '../../domain/event/events.dart';
 import '../../shared/models/content.dart';
 import '../../shared/utils/html_utils.dart';
 
@@ -41,6 +42,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         _isLoading = false;
       });
       await storage.incrementDailyConsumedCount();
+      ref.read(eventBusProvider).publish(ContentDisplayedEvent(
+        contentId: found.id,
+        sourceName: found.sourceName,
+      ));
     } else {
       setState(() => _isLoading = false);
     }
@@ -51,10 +56,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     if (content == null) return;
     final tts = ref.read(ttsServiceProvider);
     final text = stripHtml('${content.title}。${content.fullText ?? content.summary}');
+    ref.read(eventBusProvider).publish(TtsPlaybackStartedEvent(contentId: content.id));
     await tts.speak(text);
   }
 
   Future<void> _stop() async {
+    ref.read(eventBusProvider).publish(TtsPlaybackStoppedEvent());
     await ref.read(ttsServiceProvider).stop();
   }
 

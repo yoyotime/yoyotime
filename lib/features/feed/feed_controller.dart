@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/feed/feed_fetcher.dart';
 import '../../core/engine/tone_engine.dart';
 import '../../core/storage/storage_service.dart';
+import '../../domain/event/event_bus_provider.dart';
+import '../../domain/event/events.dart';
 import '../../shared/models/content.dart';
 
 class FeedState {
@@ -71,6 +73,7 @@ class FeedController extends Notifier<FeedState> {
         isLoading: false,
         error: '今天的内容看完了，明天见',
       );
+      ref.read(eventBusProvider).publish(DailyLimitReachedEvent(count: consumed));
       return;
     }
 
@@ -103,6 +106,12 @@ class FeedController extends Notifier<FeedState> {
       final top = filtered.length > 10 ? filtered.sublist(0, 10) : filtered;
 
       await _storage.saveCachedContents(top);
+
+      ref.read(eventBusProvider).publish(ContentFetchedEvent(
+        totalCount: allItems.length,
+        filteredCount: top.length,
+        failedSources: _fetcher.lastErrors,
+      ));
 
       if (top.isEmpty && allItems.isEmpty && _fetcher.lastErrors.isNotEmpty) {
         state = state.copyWith(
@@ -202,6 +211,12 @@ class FeedController extends Notifier<FeedState> {
 
   Future<void> actOnContent(ContentItem item, FeedbackAction action) async {
     await _storage.setFeedback(item.id, action);
+
+    ref.read(eventBusProvider).publish(FeedbackGivenEvent(
+      contentId: item.id,
+      action: action,
+    ));
+
     if (action == FeedbackAction.delete || action == FeedbackAction.dislike) {
       final updated = state.items.where((c) => c.id != item.id).toList();
       state = state.copyWith(items: updated);
@@ -209,14 +224,21 @@ class FeedController extends Notifier<FeedState> {
       if (action == FeedbackAction.dislike) {
         final prefs = await _storage.getPreferences();
         final words = [...item.topics, ...item.title.split(RegExp(r'[\s,，。、]+'))];
+        final newWords = words.where((w) => w.length >= 2 && !prefs.blocklist.contains(w)).toList();
+
+        for (final word in newWords) {
+          ref.read(eventBusProvider).publish(BlocklistUpdatedEvent(word: word, added: true));
+        }
+
         final existing = Set<String>.from(prefs.blocklist);
-        existing.addAll(words.where((w) => w.length >= 2));
+        existing.addAll(newWords);
         await _storage.savePreferences(UserPreferences(
           description: prefs.description,
           interests: prefs.interests,
           blocklist: existing.toList(),
           preferAudio: prefs.preferAudio,
           ttsSpeed: prefs.ttsSpeed,
+          themeMode: prefs.themeMode,
         ));
       }
     }

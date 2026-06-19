@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/storage/storage_service.dart';
+import '../../domain/event/event_bus_provider.dart';
+import '../../domain/event/events.dart';
 import '../../shared/models/content.dart';
 
 class PreferencesController extends Notifier<UserPreferences> {
@@ -18,8 +20,15 @@ class PreferencesController extends Notifier<UserPreferences> {
   }
 
   Future<void> update(UserPreferences prefs) async {
+    final oldMode = state.themeMode;
     state = prefs;
     await _storage.savePreferences(prefs);
+    if (oldMode != prefs.themeMode) {
+      ref.read(eventBusProvider).publish(ThemeChangedEvent(
+        oldMode: oldMode,
+        newMode: prefs.themeMode,
+      ));
+    }
   }
 
   Future<void> setDescription(String description) async {
