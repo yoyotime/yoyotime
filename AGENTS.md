@@ -51,6 +51,28 @@
 - 打标签 `v*.*.*`（如 `v0.4.0`）并推送：`git tag v0.4.0 && git push origin v0.4.0`
 - CI 自动构建并发布 Release
 
+## 颅脑测试（推代码前必跑）
+**你没有 Flutter 本地环境，所以用这个流程：**
+
+### 方式一：推到测试分支（推荐）
+```bash
+git checkout -b test-xxx
+git push origin test-xxx
+# GitHub Actions 自动运行 .github/workflows/preflight.yml
+# 等 ✅ 通过后再合并到 main
+```
+
+### 方式二：本地快速检查
+Windows: `pre_release_check.bat`（不需要 Flutter，只检查文件/语法）
+
+### 检查项
+1. 关键文件存在（main.dart, app.dart, pubspec.yaml 等）
+2. AndroidManifest 配置正确
+3. pubspec.yaml 语法
+4. git 状态（未提交文件）
+5. print() 调试语句
+6. CI 最终验证（preflight.yml → build-apk.yml）
+
 ## 最快镜像
 - `gh-proxy.com` 推送最快
 - yt.bat 镜像列表顺序：gh-proxy.com → ghfast.top → mirror.ghproxy.com → ... → github.com

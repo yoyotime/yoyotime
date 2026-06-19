@@ -1,0 +1,71 @@
+name: 颅脑测试 (Pre-flight Check)
+
+on:
+  push:
+    branches: [test-*, preview-*, dev-*]
+  workflow_dispatch:
+    inputs:
+      full_check:
+        description: '运行完整测试'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: 颅脑测试
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: stable
+
+      - uses: actions/checkout@v4
+
+      - name: 缓存依赖
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.PUB_CACHE }}
+            .dart_tool/
+          key: check-deps-${{ hashFiles('pubspec.lock') }}
+
+      - name: 1/4 依赖解析
+        run: flutter pub get
+
+      - name: 2/4 静态分析
+        run: flutter analyze --no-fatal-infos
+
+      - name: 3/4 单元测试
+        if: github.event.inputs.full_check == 'true' || github.ref == 'refs/heads/main'
+        run: flutter test --no-pub
+
+      - name: 4/4 关键文件检查
+        run: |
+          echo "检查关键文件..."
+          for f in lib/main.dart lib/app.dart pubspec.yaml android/app/src/main/AndroidManifest.xml assets/config/sources.json assets/config/tone_rules.json; do
+            if [ ! -f "$f" ]; then
+              echo "❌ 缺失: $f"
+              exit 1
+            fi
+          done
+          echo "✅ 关键文件完整"
+
+      - name: 通知结果
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ 颅脑测试通过，可以合并到 main"
+          else
+            echo "❌ 颅脑测试失败，请修复后再合并"
+          fi
