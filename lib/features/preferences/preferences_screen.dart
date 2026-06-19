@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/update/update_service.dart';
+import '../../shared/models/content.dart';
 import 'preferences_controller.dart';
 
 class PreferencesScreen extends ConsumerWidget {

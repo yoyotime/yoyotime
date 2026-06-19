@@ -24,7 +24,6 @@ void main() {
 
     test('setSpeed updates speed and notifies listeners', () async {
       final service = TtsService();
-      final provider = ChangeNotifierProvider<TtsService>((ref) => service);
 
       int notifyCount = 0;
       service.addListener(() {

@@ -196,7 +196,8 @@ class FeedFetcher {
 
     final description = item.description?.trim();
     final link = item.link?.trim() ?? '';
-    final pubDate = item.pubDate ?? now;
+    final rawPubDate = item.pubDate;
+    final pubDate = (rawPubDate is DateTime) ? rawPubDate : now;
 
     final categories = item.categories
             ?.map((c) => c.value?.trim())
