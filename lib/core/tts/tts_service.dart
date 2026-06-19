@@ -10,36 +10,38 @@ class TtsService extends ChangeNotifier {
   String? _voice;
   bool _isPlaying = false;
 
-  Future<void> init() async {
+  Future<void> init({bool skipPlatformInit = false}) async {
     if (_initialized) return;
     _tts = FlutterTts();
     final prefs = await SharedPreferences.getInstance();
     _speed = prefs.getDouble('tts_speed') ?? 1.0;
     _voice = prefs.getString('tts_voice');
 
-    await _tts.setLanguage('zh-CN');
-    await _tts.setVolume(1.0);
-    await _tts.setPitch(1.0);
-    await _tts.setSpeechRate(_speed);
-    if (_voice != null) {
-      final voiceName = _voice!;
-      try {
-        await _tts.setVoice(<String, String>{'name': voiceName, 'locale': 'zh-CN'});
-      } catch (_) {}
-    }
+    if (!skipPlatformInit) {
+      await _tts.setLanguage('zh-CN');
+      await _tts.setVolume(1.0);
+      await _tts.setPitch(1.0);
+      await _tts.setSpeechRate(_speed);
+      if (_voice != null) {
+        final voiceName = _voice!;
+        try {
+          await _tts.setVoice(<String, String>{'name': voiceName, 'locale': 'zh-CN'});
+        } catch (_) {}
+      }
 
-    _tts.setCompletionHandler(() {
-      _isPlaying = false;
-      notifyListeners();
-    });
-    _tts.setCancelHandler(() {
-      _isPlaying = false;
-      notifyListeners();
-    });
-    _tts.setErrorHandler((msg) {
-      _isPlaying = false;
-      notifyListeners();
-    });
+      _tts.setCompletionHandler(() {
+        _isPlaying = false;
+        notifyListeners();
+      });
+      _tts.setCancelHandler(() {
+        _isPlaying = false;
+        notifyListeners();
+      });
+      _tts.setErrorHandler((msg) {
+        _isPlaying = false;
+        notifyListeners();
+      });
+    }
 
     _initialized = true;
     notifyListeners();

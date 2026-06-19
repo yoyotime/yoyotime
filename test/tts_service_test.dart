@@ -56,7 +56,7 @@ void main() {
       await prefs.setDouble('tts_speed', 0.8);
 
       final service = TtsService();
-      await service.init();
+      await service.init(skipPlatformInit: true);
       expect(service.speed, 0.8);
     });
 
