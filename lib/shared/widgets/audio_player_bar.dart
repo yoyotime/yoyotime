@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'audio_player_controller.dart';
+import '../../features/feed/audio_player_controller.dart';
 
 class AudioPlayerBar extends ConsumerWidget {
   const AudioPlayerBar({super.key});

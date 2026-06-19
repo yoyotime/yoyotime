@@ -56,7 +56,7 @@ class _BreathingAnimationState extends State<BreathingAnimation>
     final theme = Theme.of(context);
 
     return AnimatedBuilder(
-      animation: _controller,
+      listenable: _controller,
       builder: (context, child) {
         return Container(
           color: theme.scaffoldBackgroundColor,

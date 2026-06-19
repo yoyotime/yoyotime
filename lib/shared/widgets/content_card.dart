@@ -96,7 +96,7 @@ class ContentCard extends StatelessWidget {
                   if (onPlay != null)
                     _IconButton(
                       icon: Icons.play_circle_outline,
-                      onTap: onPlay,
+                      onTap: onPlay!,
                       tooltip: '播放',
                     ),
                   _FeedbackIcons(onFeedback: onFeedback),

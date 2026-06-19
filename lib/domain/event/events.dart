@@ -1,5 +1,6 @@
 import 'domain_event.dart';
-import '../../shared/models/content.dart';
+import '../model/feedback_action.dart';
+import '../model/app_theme_mode.dart';
 
 class ContentFetchedEvent extends DomainEvent {
   final int totalCount;

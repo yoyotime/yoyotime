@@ -1,8 +1,8 @@
 import '../../model/content_item.dart';
 import '../../repository/content_repository.dart';
 import '../../repository/preferences_repository.dart';
-import '../event/event_bus.dart';
-import '../event/events.dart';
+import '../../event/event_bus.dart';
+import '../../event/events.dart';
 
 class CacheFeedUseCase {
   final ContentRepository _contentRepo;
