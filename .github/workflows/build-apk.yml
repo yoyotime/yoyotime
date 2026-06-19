@@ -35,10 +35,7 @@ jobs:
 
   build:
     name: 构建 APK
-    needs: preflight
     runs-on: ubuntu-latest
-    if: success()
-
     steps:
       - uses: actions/checkout@v4
 
