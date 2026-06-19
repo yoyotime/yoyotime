@@ -1,7 +1,7 @@
-import '../model/content_item.dart';
-import '../repository/feed_source_repository.dart';
-import '../repository/content_repository.dart';
-import '../service/tone_engine.dart';
+import '../../model/content_item.dart';
+import '../../repository/feed_source_repository.dart';
+import '../../repository/content_repository.dart';
+import '../tone_engine.dart';
 
 class FeedResult {
   final List<ContentItem> items;

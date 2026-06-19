@@ -1,6 +1,6 @@
-import '../model/content_item.dart';
-import '../repository/content_repository.dart';
-import '../repository/preferences_repository.dart';
+import '../../model/content_item.dart';
+import '../../repository/content_repository.dart';
+import '../../repository/preferences_repository.dart';
 import '../event/event_bus.dart';
 import '../event/events.dart';
 
