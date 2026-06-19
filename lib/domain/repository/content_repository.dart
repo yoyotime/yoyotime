@@ -6,4 +6,5 @@ abstract class ContentRepository {
   Future<void> saveCachedContents(List<ContentItem> items);
   Future<Map<String, FeedbackAction>> getAllFeedback();
   Future<void> setFeedback(String contentId, FeedbackAction action);
+  Future<List<ContentItem>> getBookmarkedContents();
 }

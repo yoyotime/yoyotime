@@ -130,6 +130,18 @@ class StorageService implements ContentRepository, PreferencesRepository {
     final current = _prefs.getInt(key) ?? 0;
     await _prefs.setInt(key, current + 1);
   }
+
+  @override
+  Future<List<ContentItem>> getBookmarkedContents() async {
+    final allFeedback = await getAllFeedback();
+    final bookmarkedIds = allFeedback.entries
+        .where((e) => e.value == FeedbackAction.bookmark)
+        .map((e) => e.key)
+        .toList();
+
+    final cached = await getCachedContents();
+    return cached.where((item) => bookmarkedIds.contains(item.id)).toList();
+  }
 }
 
 final storageServiceProvider = Provider<StorageService>((ref) {
