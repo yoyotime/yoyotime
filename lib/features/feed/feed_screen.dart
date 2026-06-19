@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../../domain/service/greeting_service_provider.dart';
+import '../../domain/model/greeting.dart';
 import '../../shared/widgets/content_card.dart';
 import 'feed_controller.dart';
 
@@ -25,7 +27,7 @@ class FeedScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: controller.refresh,
-        child: _buildBody(context, state, controller),
+        child: _buildBody(context, state, controller, ref),
       ),
     );
   }
@@ -34,6 +36,7 @@ class FeedScreen extends ConsumerWidget {
     BuildContext context,
     FeedState state,
     FeedController controller,
+    WidgetRef ref,
   ) {
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -48,7 +51,7 @@ class FeedScreen extends ConsumerWidget {
       itemCount: state.items.length + 1,
       separatorBuilder: (_, __) => const SizedBox(height: 4),
       itemBuilder: (context, index) {
-        if (index == 0) return _dateHeader(context, state);
+        if (index == 0) return _dateHeader(context, state, ref);
         final item = state.items[index - 1];
         return ContentCard(
           item: item,
@@ -59,38 +62,37 @@ class FeedScreen extends ConsumerWidget {
     );
   }
 
-  Widget _dateHeader(BuildContext context, FeedState state) {
-    final now = DateTime.now();
-    final hour = now.hour;
-    String greeting;
-    if (hour < 6) {
-      greeting = '夜深了';
-    } else if (hour < 12) {
-      greeting = '早安';
-    } else if (hour < 18) {
-      greeting = '午安';
-    } else {
-      greeting = '晚安';
-    }
+  Widget _dateHeader(BuildContext context, FeedState state, WidgetRef ref) {
+    final greetingService = ref.read(greetingServiceProvider);
+    final greeting = greetingService.generate();
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            greeting,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w300,
-                ),
+            greeting.text,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            greeting.subText,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.outline,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             state.lastUpdated != null
                 ? '更新于 ${timeago.format(state.lastUpdated!, locale: 'zh')}'
                 : '为您精选 ${state.items.length} 条',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.outline,
+            ),
           ),
         ],
       ),
