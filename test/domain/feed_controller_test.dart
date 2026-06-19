@@ -124,9 +124,9 @@ void main() {
 
     group('ContentItem Filtering', () {
       test('should filter items matching feedback', () async {
-        await storage.setFeedback('item-1', FeedbackAction.dislike);
-        await storage.setFeedback('item-2', FeedbackAction.like);
-        await storage.setFeedback('item-3', FeedbackAction.bookmark);
+        await storage.setFeedback('item-0', FeedbackAction.dislike);
+        await storage.setFeedback('item-1', FeedbackAction.like);
+        await storage.setFeedback('item-2', FeedbackAction.bookmark);
 
         final feedback = await storage.getAllFeedback();
         final items = _createItems(3);

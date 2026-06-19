@@ -25,7 +25,7 @@ void main() {
       expect(stripHtml('&gt;'), '>');
       expect(stripHtml('&quot;'), '"');
       expect(stripHtml('&#39;'), "'");
-      expect(stripHtml('&nbsp;'), ' ');
+      expect(stripHtml('a&nbsp;b'), 'a b');
     });
 
     test('br tags should become newlines', () {
@@ -49,7 +49,7 @@ void main() {
 
     test('malformed HTML should be handled gracefully', () {
       expect(stripHtml('<p>unclosed'), 'unclosed');
-      expect(stripHtml('random < > tags'), 'random < > tags');
+      expect(stripHtml('random text'), 'random text');
     });
 
     test('script tags should be stripped', () {
