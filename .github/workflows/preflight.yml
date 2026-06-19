@@ -1,18 +1,9 @@
-name: 颅脑测试 (Pre-flight Check)
+name: 颅脑测试
 
 on:
   push:
     branches: [test-*, preview-*, dev-*]
   workflow_dispatch:
-    inputs:
-      full_check:
-        description: '运行完整测试'
-        required: false
-        default: 'true'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
 
 concurrency:
   group: check-${{ github.ref }}
@@ -25,30 +16,22 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: stable
-
-      - uses: actions/checkout@v4
-
-      - name: 缓存依赖
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ env.PUB_CACHE }}
-            .dart_tool/
-          key: check-deps-${{ hashFiles('pubspec.lock') }}
+          cache: true
 
       - name: 1/4 依赖解析
         run: flutter pub get
 
-      - name: 2/4 静态分析
+      - name: 2/4 静态分析（有 error 就失败）
         run: flutter analyze --no-fatal-infos
 
       - name: 3/4 单元测试
-        if: github.event.inputs.full_check == 'true' || github.ref == 'refs/heads/main'
-        run: flutter test --no-pub
+        run: flutter test
 
       - name: 4/4 关键文件检查
         run: |
@@ -61,7 +44,7 @@ jobs:
           done
           echo "✅ 关键文件完整"
 
-      - name: 通知结果
+      - name: 结果
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then

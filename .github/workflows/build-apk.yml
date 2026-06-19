@@ -12,9 +12,10 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  preflight:
+    name: 颅脑测试
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -26,11 +27,28 @@ jobs:
 
       - run: flutter pub get
 
-      - name: Analyze (non-fatal)
-        run: flutter analyze || echo "analyze warnings ignored"
-        continue-on-error: true
+      - name: 静态分析
+        run: flutter analyze --no-fatal-infos
 
-      - run: flutter test
+      - name: 单元测试
+        run: flutter test
+
+  build:
+    name: 构建 APK
+    needs: preflight
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          cache: true
+
+      - run: flutter pub get
 
       - run: flutter build apk --release --target-platform android-arm64
 
