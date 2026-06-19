@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/repository/repository_providers.dart';
 import '../../domain/service/tone_engine_provider.dart';
+import '../../domain/service/use_cases/fetch_feed_use_case.dart';
+import '../../domain/service/use_cases/feed_use_cases.dart';
 import '../../domain/event/event_bus_provider.dart';
 import '../../domain/event/events.dart';
 import '../../domain/model/models.dart';
@@ -41,19 +43,28 @@ class FeedState {
 }
 
 class FeedController extends Notifier<FeedState> {
-  late final FeedSourceRepository _feedSource;
-  late final ToneEngine _tone;
-  late final ContentRepository _contentRepo;
-  late final PreferencesRepository _prefsRepo;
+  late final FetchFeedUseCase _fetchFeed;
+  late final CacheFeedUseCase _cacheFeed;
+  late final LoadCachedFeedUseCase _loadCached;
+  late final EnforceDailyLimitUseCase _dailyLimit;
+  late final ActOnContentUseCase _actOnContent;
 
   @override
   FeedState build() {
-    _feedSource = ref.watch(feedSourceRepositoryProvider);
-    _tone = ref.watch(toneEngineProvider);
-    _contentRepo = ref.watch(contentRepositoryProvider);
-    _prefsRepo = ref.watch(preferencesRepositoryProvider);
+    final feedSource = ref.watch(feedSourceRepositoryProvider);
+    final tone = ref.watch(toneEngineProvider);
+    final contentRepo = ref.watch(contentRepositoryProvider);
+    final prefsRepo = ref.watch(preferencesRepositoryProvider);
+    final eventBus = ref.watch(eventBusProvider);
+
+    _fetchFeed = FetchFeedUseCase(feedSource, tone);
+    _cacheFeed = CacheFeedUseCase(contentRepo);
+    _loadCached = LoadCachedFeedUseCase(contentRepo);
+    _dailyLimit = EnforceDailyLimitUseCase(prefsRepo);
+    _actOnContent = ActOnContentUseCase(contentRepo, prefsRepo, eventBus);
+
     Future.microtask(() async {
-      await _tone.loadRules();
+      await tone.loadRules();
       await load();
     });
     return const FeedState(isLoading: true);
@@ -66,55 +77,52 @@ class FeedController extends Notifier<FeedState> {
   Future<void> _load({bool force = false}) async {
     state = state.copyWith(isLoading: true, error: null);
 
-    final consumed = await _prefsRepo.getDailyConsumedCount();
-    if (consumed >= 10 && !force) {
-      final cached = await _contentRepo.getCachedContents();
+    if (await _dailyLimit.isLimitReached() && !force) {
+      final cached = await _loadCached.execute();
       state = state.copyWith(
         items: cached.length > 10 ? cached.sublist(0, 10) : cached,
         isLoading: false,
         error: '今天的内容看完了，明天见',
       );
-      ref.read(eventBusProvider).publish(DailyLimitReachedEvent(count: consumed));
+      ref.read(eventBusProvider).publish(
+        DailyLimitReachedEvent(count: await _dailyLimit.getConsumedCount()),
+      );
       return;
     }
 
-    final cached = await _contentRepo.getCachedContents();
+    final cached = await _loadCached.execute();
     if (cached.isNotEmpty && !force) {
       state = state.copyWith(items: cached, isLoading: false);
     }
 
     try {
-      final prefs = await _prefsRepo.getPreferences();
-      final feedback = await _contentRepo.getAllFeedback();
+      final prefs = await ref.read(preferencesRepositoryProvider).getPreferences();
+      final feedback = await ref.read(contentRepositoryProvider).getAllFeedback();
 
-      final allItems = await _feedSource.fetchAll();
-      var filtered = _tone.filter(allItems);
+      final result = await _fetchFeed.execute(
+        blocklist: prefs.blocklist,
+        feedback: feedback,
+      );
 
-      filtered = filtered.where((item) => !prefs.isBlocked(item.title, item.summary, item.topics)).toList();
-
-      filtered = filtered.where((item) => item.matchesFeedback(feedback)).toList();
-
-      final top = filtered.length > 10 ? filtered.sublist(0, 10) : filtered;
-
-      await _contentRepo.saveCachedContents(top);
+      await _cacheFeed.execute(result.items);
 
       ref.read(eventBusProvider).publish(ContentFetchedEvent(
-        totalCount: allItems.length,
-        filteredCount: top.length,
-        failedSources: _feedSource.lastErrors,
+        totalCount: result.totalCount,
+        filteredCount: result.items.length,
+        failedSources: result.failedSources,
       ));
 
-      if (top.isEmpty && allItems.isEmpty && _feedSource.lastErrors.isNotEmpty) {
+      if (result.isEmpty && result.totalCount == 0 && result.failedSources.isNotEmpty) {
         state = state.copyWith(
-          items: top,
+          items: result.items,
           isLoading: false,
           isOffline: true,
           error: '暂未获取到内容',
-          failedSources: _feedSource.lastErrors,
+          failedSources: result.failedSources,
         );
       } else {
         state = state.copyWith(
-          items: top,
+          items: result.items,
           isLoading: false,
           isOffline: false,
           lastUpdated: DateTime.now(),
@@ -123,7 +131,7 @@ class FeedController extends Notifier<FeedState> {
     } catch (e) {
       final demo = cached.isNotEmpty ? state.items : _demoContents();
       if (cached.isEmpty) {
-        await _contentRepo.saveCachedContents(demo);
+        await _cacheFeed.execute(demo);
       }
       state = state.copyWith(
         items: demo,
@@ -201,33 +209,11 @@ class FeedController extends Notifier<FeedState> {
   }
 
   Future<void> actOnContent(ContentItem item, FeedbackAction action) async {
-    await _contentRepo.setFeedback(item.id, action);
-
-    ref.read(eventBusProvider).publish(FeedbackGivenEvent(
-      contentId: item.id,
-      action: action,
-    ));
+    await _actOnContent.execute(item, action);
 
     if (action == FeedbackAction.delete || action == FeedbackAction.dislike) {
       final updated = state.items.where((c) => c.id != item.id).toList();
       state = state.copyWith(items: updated);
-
-      if (action == FeedbackAction.dislike) {
-        final prefs = await _prefsRepo.getPreferences();
-        final newWords = item.extractBlocklistKeywords()
-            .where((w) => !prefs.blocklist.contains(w))
-            .toList();
-
-        for (final word in newWords) {
-          ref.read(eventBusProvider).publish(BlocklistUpdatedEvent(word: word, added: true));
-        }
-
-        var updatedPrefs = prefs;
-        for (final word in newWords) {
-          updatedPrefs = updatedPrefs.addBlocklist(word);
-        }
-        await _prefsRepo.savePreferences(updatedPrefs);
-      }
     }
   }
 }
