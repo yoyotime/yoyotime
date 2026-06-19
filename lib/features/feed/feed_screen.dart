@@ -6,7 +6,9 @@ import '../../core/services/connectivity_service.dart';
 import '../../domain/service/greeting_service_provider.dart';
 import '../../domain/model/greeting.dart';
 import '../../shared/widgets/content_card.dart';
+import '../../shared/widgets/audio_player_bar.dart';
 import 'feed_controller.dart';
+import 'audio_player_controller.dart';
 import 'offline_screen.dart';
 
 class FeedScreen extends ConsumerWidget {
@@ -23,23 +25,40 @@ class FeedScreen extends ConsumerWidget {
         title: const Text('今日'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.play_circle_outline),
+            onPressed: () {
+              final state = ref.read(feedControllerProvider);
+              if (state.items.isNotEmpty) {
+                ref.read(audioPlayerProvider.notifier).playAll(state.items);
+              }
+            },
+            tooltip: '全部播放',
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => controller.refresh(),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: controller.refresh,
-        child: connectivity.when(
-          data: (status) {
-            if (status == ConnectivityStatus.offline && state.items.isEmpty) {
-              return const OfflineScreen();
-            }
-            return _buildBody(context, state, controller, ref);
-          },
-          loading: () => _buildBody(context, state, controller, ref),
-          error: (_, __) => _buildBody(context, state, controller, ref),
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: controller.refresh,
+              child: connectivity.when(
+                data: (status) {
+                  if (status == ConnectivityStatus.offline && state.items.isEmpty) {
+                    return const OfflineScreen();
+                  }
+                  return _buildBody(context, state, controller, ref);
+                },
+                loading: () => _buildBody(context, state, controller, ref),
+                error: (_, __) => _buildBody(context, state, controller, ref),
+              ),
+            ),
+          ),
+          const AudioPlayerBar(),
+        ],
       ),
     );
   }
@@ -69,6 +88,12 @@ class FeedScreen extends ConsumerWidget {
           item: item,
           onTap: () => context.push('/reader/${item.id}'),
           onFeedback: (action) => controller.actOnContent(item, action),
+          onPlay: () {
+            ref.read(audioPlayerProvider.notifier).playAll(
+              state.items,
+              startIndex: index - 1,
+            );
+          },
         );
       },
     );

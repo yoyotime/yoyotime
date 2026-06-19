@@ -7,12 +7,14 @@ class ContentCard extends StatelessWidget {
   final ContentItem item;
   final VoidCallback? onTap;
   final ValueChanged<FeedbackAction>? onFeedback;
+  final VoidCallback? onPlay;
 
   const ContentCard({
     super.key,
     required this.item,
     this.onTap,
     this.onFeedback,
+    this.onPlay,
   });
 
   @override
@@ -91,6 +93,12 @@ class ContentCard extends StatelessWidget {
                       child: _MiniChip(label: '#$topic'),
                     ),
                   const Spacer(),
+                  if (onPlay != null)
+                    _IconButton(
+                      icon: Icons.play_circle_outline,
+                      onTap: onPlay,
+                      tooltip: '播放',
+                    ),
                   _FeedbackIcons(onFeedback: onFeedback),
                 ],
               ),
