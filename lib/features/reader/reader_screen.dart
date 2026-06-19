@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/storage/storage_service.dart';
 import '../../core/tts/tts_service.dart';
 import '../../shared/models/content.dart';
@@ -120,6 +121,26 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   maxWidth: MaxWidth(MediaQuery.of(context).size.width - 40),
                 ),
               },
+              extensions: [
+                TagExtension.fromUriView(
+                  (attributes, element) {
+                    final src = element.attributes['src'];
+                    if (src == null || src.isEmpty) return null;
+                    return CachedNetworkImage(
+                      imageUrl: src,
+                      fit: BoxFit.contain,
+                      placeholder: (_, __) => const SizedBox(
+                        height: 100,
+                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      ),
+                      errorWidget: (_, __, ___) => const SizedBox(
+                        height: 60,
+                        child: Center(child: Icon(Icons.broken_image_outlined, size: 32)),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 32),
           ],
