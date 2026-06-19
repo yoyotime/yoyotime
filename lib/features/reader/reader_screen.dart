@@ -6,6 +6,7 @@ import '../../domain/event/event_bus_provider.dart';
 import '../../domain/event/events.dart';
 import '../../domain/model/models.dart';
 import '../../shared/utils/html_utils.dart';
+import '../../shared/widgets/breathing_animation.dart';
 import '../../core/tts/tts_service.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
@@ -19,6 +20,7 @@ class ReaderScreen extends ConsumerStatefulWidget {
 class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   ContentItem? _content;
   bool _isLoading = true;
+  bool _showBreathing = true;
 
   @override
   void initState() {
@@ -72,6 +74,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
+    if (_showBreathing && _content != null) {
+      return BreathingAnimation(
+        onComplete: () => setState(() => _showBreathing = false),
+      );
+    }
+
     final content = _content;
     if (content == null) {
       return Scaffold(
