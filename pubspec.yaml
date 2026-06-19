@@ -27,7 +27,6 @@ dependencies:
   speech_to_text: ^6.6.0
   package_info_plus: ^5.0.1
   open_filex: ^4.4.0
-  connectivity_plus: ^2.1.0
 
 dev_dependencies:
   flutter_test:
