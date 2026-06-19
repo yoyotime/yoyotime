@@ -94,7 +94,8 @@ class FeedFetcher {
         source.url,
         options: Options(
           responseType: ResponseType.plain,
-          receiveTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 10),
+          sendTimeout: const Duration(seconds: 5),
         ),
       );
 
@@ -140,7 +141,8 @@ class FeedFetcher {
         source.url,
         options: Options(
           responseType: ResponseType.plain,
-          receiveTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 10),
+          sendTimeout: const Duration(seconds: 5),
         ),
       );
       final raw = res.data;

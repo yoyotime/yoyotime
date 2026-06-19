@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_html/flutter_html.dart';
 import '../../core/storage/storage_service.dart';
 import '../../core/tts/tts_service.dart';
 import '../../shared/models/content.dart';
@@ -105,12 +106,20 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Text(
-              stripHtml(content.fullText ?? content.summary),
-              style: theme.textTheme.bodyLarge?.copyWith(
-                height: 1.8,
-                fontSize: 16,
-              ),
+            Html(
+              data: content.fullText ?? content.summary,
+              style: {
+                'body': Style(
+                  fontSize: FontSize(16),
+                  lineHeight: LineHeight(1.8),
+                ),
+                'a': Style(
+                  color: theme.colorScheme.primary,
+                ),
+                'img': Style(
+                  maxWidth: MaxWidth(MediaQuery.of(context).size.width - 40),
+                ),
+              },
             ),
             const SizedBox(height: 32),
           ],
