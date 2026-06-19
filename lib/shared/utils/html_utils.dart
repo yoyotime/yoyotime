@@ -1,5 +1,7 @@
 String stripHtml(String html) {
   return html
+      .replaceAll(RegExp(r'<style[^>]*>[\s\S]*?</style>'), '')
+      .replaceAll(RegExp(r'<script[^>]*>[\s\S]*?</script>'), '')
       .replaceAll(RegExp(r'<br\s*/?>'), '\n')
       .replaceAll(RegExp(r'<p[^>]*>'), '')
       .replaceAll(RegExp(r'</p>'), '\n')
