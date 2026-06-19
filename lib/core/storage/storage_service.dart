@@ -5,9 +5,11 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../shared/models/content.dart';
+import '../../domain/model/models.dart';
+import '../../domain/repository/content_repository.dart';
+import '../../domain/repository/preferences_repository.dart';
 
-class StorageService {
+class StorageService implements ContentRepository, PreferencesRepository {
   static const _prefsKey = 'yoyotime_prefs_v1';
   static const _feedbackKey = 'yoyotime_feedback_v1';
   static const _userIdKey = 'yoyotime_user_id';
@@ -33,23 +35,26 @@ class StorageService {
     return id;
   }
 
+  @override
   Future<UserPreferences> getPreferences() async {
     await init();
     final raw = _prefs.getString(_prefsKey);
-    if (raw == null) return const UserPreferences(description: '');
+    if (raw == null) return UserPreferences(description: '');
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       return UserPreferences.fromJson(json);
     } catch (_) {
-      return const UserPreferences(description: '');
+      return UserPreferences(description: '');
     }
   }
 
+  @override
   Future<void> savePreferences(UserPreferences prefs) async {
     await init();
     await _prefs.setString(_prefsKey, jsonEncode(prefs.toJson()));
   }
 
+  @override
   Future<Map<String, FeedbackAction>> getAllFeedback() async {
     await init();
     final raw = _prefs.getString(_feedbackKey);
@@ -64,6 +69,7 @@ class StorageService {
     }
   }
 
+  @override
   Future<void> setFeedback(String contentId, FeedbackAction? action) async {
     await init();
     final all = await getAllFeedback();
@@ -78,6 +84,7 @@ class StorageService {
     );
   }
 
+  @override
   Future<List<ContentItem>> getCachedContents() async {
     try {
       final file = await _getContentsFile();
@@ -92,6 +99,7 @@ class StorageService {
     }
   }
 
+  @override
   Future<void> saveCachedContents(List<ContentItem> items) async {
     try {
       final file = await _getContentsFile();
@@ -106,6 +114,7 @@ class StorageService {
     return File(p.join(dir.path, _contentsFile));
   }
 
+  @override
   Future<int> getDailyConsumedCount() async {
     await init();
     final today = DateTime.now().toIso8601String().substring(0, 10);
@@ -113,6 +122,7 @@ class StorageService {
     return _prefs.getInt(key) ?? 0;
   }
 
+  @override
   Future<void> incrementDailyConsumedCount() async {
     await init();
     final today = DateTime.now().toIso8601String().substring(0, 10);
@@ -120,21 +130,6 @@ class StorageService {
     final current = _prefs.getInt(key) ?? 0;
     await _prefs.setInt(key, current + 1);
   }
-}
-
-extension on ContentItem {
-  Map<String, dynamic> toJson() => {
-        'content_id': id,
-        'title': title,
-        'summary': summary,
-        'full_text': fullText,
-        'source': {'name': sourceName, 'url': sourceUrl, 'type': 'rss'},
-        'media': const [],
-        'topics': topics,
-        'published_at': publishedAt.toIso8601String(),
-        'fetched_at': fetchedAt.toIso8601String(),
-        'estimated_read_time_minutes': estimatedReadTimeMinutes,
-      };
 }
 
 final storageServiceProvider = Provider<StorageService>((ref) {

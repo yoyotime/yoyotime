@@ -3,45 +3,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webfeed/webfeed.dart';
-import '../../shared/models/content.dart';
+import '../../domain/model/content_item.dart';
+import '../../domain/model/content_media.dart';
+import '../../domain/model/feed_source.dart';
+import '../../domain/repository/feed_source_repository.dart';
 
-class FeedSource {
-  final String id;
-  final String name;
-  final String url;
-  final String type;
-  final String category;
-  final List<String> topics;
-  final bool enabled;
-  final int updateIntervalMinutes;
-
-  const FeedSource({
-    required this.id,
-    required this.name,
-    required this.url,
-    this.type = 'rss',
-    required this.category,
-    this.topics = const [],
-    this.enabled = true,
-    this.updateIntervalMinutes = 60,
-  });
-
-  factory FeedSource.fromJson(Map<String, dynamic> json) => FeedSource(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        url: json['url'] as String,
-        type: json['type'] as String? ?? 'rss',
-        category: json['category'] as String,
-        topics: List<String>.from(json['topics'] ?? []),
-        enabled: json['enabled'] as bool? ?? true,
-        updateIntervalMinutes: json['updateIntervalMinutes'] as int? ?? 60,
-      );
-}
-
-class FeedFetcher {
+class FeedFetcher implements FeedSourceRepository {
   late final Dio _dio;
   List<FeedSource> _sources = [];
-  List<String> lastErrors = [];
+  List<String> _lastErrors = [];
 
   FeedFetcher({Dio? dio}) {
     _dio = dio ?? Dio(BaseOptions(
@@ -52,6 +22,10 @@ class FeedFetcher {
     ));
   }
 
+  @override
+  List<String> get lastErrors => _lastErrors;
+
+  @override
   Future<List<FeedSource>> loadSources() async {
     final raw = await rootBundle.loadString('assets/config/sources.json');
     final json = jsonDecode(raw) as Map<String, dynamic>;
@@ -63,10 +37,11 @@ class FeedFetcher {
     return _sources;
   }
 
+  @override
   Future<List<ContentItem>> fetchAll() async {
     if (_sources.isEmpty) await loadSources();
 
-    lastErrors = [];
+    _lastErrors = [];
     final results = await Future.wait(
       _sources.map((s) => _fetchSource(s)),
       eagerError: false,
@@ -75,7 +50,7 @@ class FeedFetcher {
     final items = <ContentItem>[];
     for (var i = 0; i < results.length; i++) {
       if (results[i].isEmpty) {
-        lastErrors.add(_sources[i].name);
+        _lastErrors.add(_sources[i].name);
       }
       items.addAll(results[i]);
     }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_html/flutter_html.dart';
-import '../../core/storage/storage_service.dart';
-import '../../core/tts/tts_service.dart';
+import '../../domain/repository/repository_providers.dart';
 import '../../domain/event/event_bus_provider.dart';
 import '../../domain/event/events.dart';
-import '../../shared/models/content.dart';
+import '../../domain/model/models.dart';
 import '../../shared/utils/html_utils.dart';
+import '../../core/tts/tts_service.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
   final String contentId;
@@ -27,8 +27,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   Future<void> _load() async {
-    final storage = ref.read(storageServiceProvider);
-    final contents = await storage.getCachedContents();
+    final repo = ref.read(contentRepositoryProvider);
+    final contents = await repo.getCachedContents();
     ContentItem? found;
     for (final c in contents) {
       if (c.id == widget.contentId) {
@@ -41,7 +41,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         _content = found;
         _isLoading = false;
       });
-      await storage.incrementDailyConsumedCount();
+      await repo.incrementDailyConsumedCount();
       ref.read(eventBusProvider).publish(ContentDisplayedEvent(
         contentId: found.id,
         sourceName: found.sourceName,

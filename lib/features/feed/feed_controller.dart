@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/feed/feed_fetcher.dart';
-import '../../core/engine/tone_engine.dart';
-import '../../core/storage/storage_service.dart';
+import '../../domain/repository/repository_providers.dart';
+import '../../domain/service/tone_engine_provider.dart';
 import '../../domain/event/event_bus_provider.dart';
 import '../../domain/event/events.dart';
-import '../../shared/models/content.dart';
+import '../../domain/model/models.dart';
 
 class FeedState {
   final List<ContentItem> items;
@@ -42,15 +41,17 @@ class FeedState {
 }
 
 class FeedController extends Notifier<FeedState> {
-  late final FeedFetcher _fetcher;
+  late final FeedSourceRepository _feedSource;
   late final ToneEngine _tone;
-  late final StorageService _storage;
+  late final ContentRepository _contentRepo;
+  late final PreferencesRepository _prefsRepo;
 
   @override
   FeedState build() {
-    _fetcher = ref.watch(feedFetcherProvider);
+    _feedSource = ref.watch(feedSourceRepositoryProvider);
     _tone = ref.watch(toneEngineProvider);
-    _storage = ref.watch(storageServiceProvider);
+    _contentRepo = ref.watch(contentRepositoryProvider);
+    _prefsRepo = ref.watch(preferencesRepositoryProvider);
     Future.microtask(() async {
       await _tone.loadRules();
       await load();
@@ -65,9 +66,9 @@ class FeedController extends Notifier<FeedState> {
   Future<void> _load({bool force = false}) async {
     state = state.copyWith(isLoading: true, error: null);
 
-    final consumed = await _storage.getDailyConsumedCount();
+    final consumed = await _prefsRepo.getDailyConsumedCount();
     if (consumed >= 10 && !force) {
-      final cached = await _storage.getCachedContents();
+      final cached = await _contentRepo.getCachedContents();
       state = state.copyWith(
         items: cached.length > 10 ? cached.sublist(0, 10) : cached,
         isLoading: false,
@@ -77,49 +78,39 @@ class FeedController extends Notifier<FeedState> {
       return;
     }
 
-    final cached = await _storage.getCachedContents();
+    final cached = await _contentRepo.getCachedContents();
     if (cached.isNotEmpty && !force) {
       state = state.copyWith(items: cached, isLoading: false);
     }
 
     try {
-      final prefs = await _storage.getPreferences();
-      final blocklist = prefs.blocklist;
-      final feedback = await _storage.getAllFeedback();
+      final prefs = await _prefsRepo.getPreferences();
+      final feedback = await _contentRepo.getAllFeedback();
 
-      final allItems = await _fetcher.fetchAll();
+      final allItems = await _feedSource.fetchAll();
       var filtered = _tone.filter(allItems);
 
-      filtered = filtered.where((item) {
-        final matched = blocklist.any((word) =>
-            item.title.contains(word) ||
-            item.summary.contains(word) ||
-            item.topics.any((t) => t.contains(word)));
-        return !matched;
-      }).toList();
+      filtered = filtered.where((item) => !prefs.isBlocked(item.title, item.summary, item.topics)).toList();
 
-      filtered = filtered.where((item) {
-        final fb = feedback[item.id];
-        return fb == null || fb == FeedbackAction.like || fb == FeedbackAction.bookmark;
-      }).toList();
+      filtered = filtered.where((item) => item.matchesFeedback(feedback)).toList();
 
       final top = filtered.length > 10 ? filtered.sublist(0, 10) : filtered;
 
-      await _storage.saveCachedContents(top);
+      await _contentRepo.saveCachedContents(top);
 
       ref.read(eventBusProvider).publish(ContentFetchedEvent(
         totalCount: allItems.length,
         filteredCount: top.length,
-        failedSources: _fetcher.lastErrors,
+        failedSources: _feedSource.lastErrors,
       ));
 
-      if (top.isEmpty && allItems.isEmpty && _fetcher.lastErrors.isNotEmpty) {
+      if (top.isEmpty && allItems.isEmpty && _feedSource.lastErrors.isNotEmpty) {
         state = state.copyWith(
           items: top,
           isLoading: false,
           isOffline: true,
           error: '暂未获取到内容',
-          failedSources: _fetcher.lastErrors,
+          failedSources: _feedSource.lastErrors,
         );
       } else {
         state = state.copyWith(
@@ -132,7 +123,7 @@ class FeedController extends Notifier<FeedState> {
     } catch (e) {
       final demo = cached.isNotEmpty ? state.items : _demoContents();
       if (cached.isEmpty) {
-        await _storage.saveCachedContents(demo);
+        await _contentRepo.saveCachedContents(demo);
       }
       state = state.copyWith(
         items: demo,
@@ -210,7 +201,7 @@ class FeedController extends Notifier<FeedState> {
   }
 
   Future<void> actOnContent(ContentItem item, FeedbackAction action) async {
-    await _storage.setFeedback(item.id, action);
+    await _contentRepo.setFeedback(item.id, action);
 
     ref.read(eventBusProvider).publish(FeedbackGivenEvent(
       contentId: item.id,
@@ -222,24 +213,20 @@ class FeedController extends Notifier<FeedState> {
       state = state.copyWith(items: updated);
 
       if (action == FeedbackAction.dislike) {
-        final prefs = await _storage.getPreferences();
-        final words = [...item.topics, ...item.title.split(RegExp(r'[\s,，。、]+'))];
-        final newWords = words.where((w) => w.length >= 2 && !prefs.blocklist.contains(w)).toList();
+        final prefs = await _prefsRepo.getPreferences();
+        final newWords = item.extractBlocklistKeywords()
+            .where((w) => !prefs.blocklist.contains(w))
+            .toList();
 
         for (final word in newWords) {
           ref.read(eventBusProvider).publish(BlocklistUpdatedEvent(word: word, added: true));
         }
 
-        final existing = Set<String>.from(prefs.blocklist);
-        existing.addAll(newWords);
-        await _storage.savePreferences(UserPreferences(
-          description: prefs.description,
-          interests: prefs.interests,
-          blocklist: existing.toList(),
-          preferAudio: prefs.preferAudio,
-          ttsSpeed: prefs.ttsSpeed,
-          themeMode: prefs.themeMode,
-        ));
+        var updatedPrefs = prefs;
+        for (final word in newWords) {
+          updatedPrefs = updatedPrefs.addBlocklist(word);
+        }
+        await _prefsRepo.savePreferences(updatedPrefs);
       }
     }
   }

@@ -1,28 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/storage/storage_service.dart';
+import '../../domain/repository/repository_providers.dart';
 import '../../domain/event/event_bus_provider.dart';
 import '../../domain/event/events.dart';
-import '../../shared/models/content.dart';
+import '../../domain/model/models.dart';
 
 class PreferencesController extends Notifier<UserPreferences> {
-  late final StorageService _storage;
+  late final PreferencesRepository _repo;
 
   @override
   UserPreferences build() {
-    _storage = ref.watch(storageServiceProvider);
+    _repo = ref.watch(preferencesRepositoryProvider);
     Future.microtask(_load);
-    return const UserPreferences(description: '');
+    return UserPreferences(description: '');
   }
 
   Future<void> _load() async {
-    final prefs = await _storage.getPreferences();
+    final prefs = await _repo.getPreferences();
     state = prefs;
   }
 
   Future<void> update(UserPreferences prefs) async {
     final oldMode = state.themeMode;
     state = prefs;
-    await _storage.savePreferences(prefs);
+    await _repo.savePreferences(prefs);
     if (oldMode != prefs.themeMode) {
       ref.read(eventBusProvider).publish(ThemeChangedEvent(
         oldMode: oldMode,
@@ -37,28 +37,24 @@ class PreferencesController extends Notifier<UserPreferences> {
   }
 
   Future<void> addInterest(String topic) async {
-    if (state.interests.contains(topic)) return;
-    final updated = state.copyWith(interests: [...state.interests, topic]);
+    final updated = state.addInterest(topic);
     await update(updated);
   }
 
   Future<void> removeInterest(String topic) async {
-    final updated = state.copyWith(
-      interests: state.interests.where((t) => t != topic).toList(),
-    );
+    final updated = state.removeInterest(topic);
     await update(updated);
   }
 
-  Future<void> addBlocklist(String topic) async {
-    if (state.blocklist.contains(topic)) return;
-    final updated = state.copyWith(blocklist: [...state.blocklist, topic]);
-    await update(updated);
+  Future<void> addBlocklist(String word) async {
+    try {
+      final updated = state.addBlocklist(word);
+      await update(updated);
+    } catch (_) {}
   }
 
-  Future<void> removeBlocklist(String topic) async {
-    final updated = state.copyWith(
-      blocklist: state.blocklist.where((t) => t != topic).toList(),
-    );
+  Future<void> removeBlocklist(String word) async {
+    final updated = state.removeBlocklist(word);
     await update(updated);
   }
 }
@@ -66,22 +62,3 @@ class PreferencesController extends Notifier<UserPreferences> {
 final preferencesControllerProvider =
     NotifierProvider<PreferencesController, UserPreferences>(
         PreferencesController.new);
-
-extension on UserPreferences {
-  UserPreferences copyWith({
-    String? description,
-    List<String>? interests,
-    List<String>? blocklist,
-    bool? preferAudio,
-    double? ttsSpeed,
-    AppThemeMode? themeMode,
-  }) =>
-      UserPreferences(
-        description: description ?? this.description,
-        interests: interests ?? this.interests,
-        blocklist: blocklist ?? this.blocklist,
-        preferAudio: preferAudio ?? this.preferAudio,
-        ttsSpeed: ttsSpeed ?? this.ttsSpeed,
-        themeMode: themeMode ?? this.themeMode,
-      );
-}
