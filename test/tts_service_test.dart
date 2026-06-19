@@ -56,13 +56,13 @@ void main() {
       await prefs.setDouble('tts_speed', 0.8);
 
       final service = TtsService();
+      await service.init();
       expect(service.speed, 0.8);
     });
 
     test('provider is ChangeNotifierProvider', () {
       final container = ProviderContainer();
-      final provider = ttsServiceProvider;
-      final service = container.read(provider);
+      final service = container.read(ttsServiceProvider);
       expect(service, isA<TtsService>());
       container.dispose();
     });
