@@ -41,6 +41,7 @@ class FeedSource {
 class FeedFetcher {
   late final Dio _dio;
   List<FeedSource> _sources = [];
+  List<String> lastErrors = [];
 
   FeedFetcher({Dio? dio}) {
     _dio = dio ?? Dio(BaseOptions(
@@ -65,14 +66,18 @@ class FeedFetcher {
   Future<List<ContentItem>> fetchAll() async {
     if (_sources.isEmpty) await loadSources();
 
+    lastErrors = [];
     final results = await Future.wait(
       _sources.map((s) => _fetchSource(s)),
       eagerError: false,
     );
 
     final items = <ContentItem>[];
-    for (final result in results) {
-      items.addAll(result);
+    for (var i = 0; i < results.length; i++) {
+      if (results[i].isEmpty) {
+        lastErrors.add(_sources[i].name);
+      }
+      items.addAll(results[i]);
     }
 
     items.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));

@@ -10,6 +10,7 @@ class FeedState {
   final bool isOffline;
   final String? error;
   final DateTime? lastUpdated;
+  final List<String> failedSources;
 
   const FeedState({
     this.items = const [],
@@ -17,6 +18,7 @@ class FeedState {
     this.isOffline = false,
     this.error,
     this.lastUpdated,
+    this.failedSources = const [],
   });
 
   FeedState copyWith({
@@ -25,6 +27,7 @@ class FeedState {
     bool? isOffline,
     String? error,
     DateTime? lastUpdated,
+    List<String>? failedSources,
   }) =>
       FeedState(
         items: items ?? this.items,
@@ -32,6 +35,7 @@ class FeedState {
         isOffline: isOffline ?? this.isOffline,
         error: error,
         lastUpdated: lastUpdated ?? this.lastUpdated,
+        failedSources: failedSources ?? this.failedSources,
       );
 }
 
@@ -99,12 +103,23 @@ class FeedController extends Notifier<FeedState> {
       final top = filtered.length > 10 ? filtered.sublist(0, 10) : filtered;
 
       await _storage.saveCachedContents(top);
-      state = state.copyWith(
-        items: top,
-        isLoading: false,
-        isOffline: false,
-        lastUpdated: DateTime.now(),
-      );
+
+      if (top.isEmpty && allItems.isEmpty && _fetcher.lastErrors.isNotEmpty) {
+        state = state.copyWith(
+          items: top,
+          isLoading: false,
+          isOffline: true,
+          error: '暂未获取到内容',
+          failedSources: _fetcher.lastErrors,
+        );
+      } else {
+        state = state.copyWith(
+          items: top,
+          isLoading: false,
+          isOffline: false,
+          lastUpdated: DateTime.now(),
+        );
+      }
     } catch (e) {
       final demo = cached.isNotEmpty ? state.items : _demoContents();
       if (cached.isEmpty) {

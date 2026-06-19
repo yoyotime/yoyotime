@@ -103,6 +103,9 @@ class FeedScreen extends ConsumerWidget {
     FeedController controller,
   ) {
     final isDone = state.error == '今天的内容看完了，明天见';
+    final failedInfo = state.failedSources.isNotEmpty
+        ? '\n\n无法连接: ${state.failedSources.join('、')}'
+        : '';
     return ListView(
       children: [
         const SizedBox(height: 120),
@@ -114,7 +117,8 @@ class FeedScreen extends ConsumerWidget {
         const SizedBox(height: 16),
         Center(
           child: Text(
-            state.error ?? '今天的内容在路上',
+            (state.error ?? '今天的内容在路上') + failedInfo,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
