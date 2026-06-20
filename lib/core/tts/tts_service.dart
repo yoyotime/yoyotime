@@ -9,6 +9,7 @@ class TtsService extends ChangeNotifier {
   double _speed = 1.0;
   String? _voice;
   bool _isPlaying = false;
+  bool _isPaused = false;
   String? _lastError;
 
   String? get lastError => _lastError;
@@ -56,6 +57,7 @@ class TtsService extends ChangeNotifier {
   }
 
   bool get isPlaying => _isPlaying;
+  bool get isPaused => _isPaused;
   double get speed => _speed;
   String? get voice => _voice;
 
@@ -103,6 +105,7 @@ class TtsService extends ChangeNotifier {
         await _tts.stop();
       }
       _isPlaying = true;
+      _isPaused = false;
       _lastError = null;
       notifyListeners();
       await _tts.speak(text);
@@ -123,9 +126,10 @@ class TtsService extends ChangeNotifier {
 
   Future<void> pause() async {
     if (_initialized) {
-      try {
-        await _tts.pause();
-      } catch (_) {}
+      await _tts.stop();
+      _isPaused = true;
+      _isPlaying = false;
+      notifyListeners();
     }
   }
 }

@@ -169,26 +169,51 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          if (ref.read(ttsServiceProvider).isPlaying) {
-            await _stop();
-          } else {
-            await _speak();
+      floatingActionButton: Consumer(
+        builder: (context, ref, _) {
+          final tts = ref.watch(ttsServiceProvider);
+          if (tts.isPlaying) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton.small(
+                  heroTag: 'pause_fab',
+                  onPressed: () => tts.pause(),
+                  child: const Icon(Icons.pause),
+                ),
+                const SizedBox(width: 12),
+                FloatingActionButton(
+                  heroTag: 'stop_fab',
+                  onPressed: _stop,
+                  child: const Icon(Icons.stop),
+                ),
+              ],
+            );
           }
+          if (tts.isPaused) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton.small(
+                  heroTag: 'resume_fab',
+                  onPressed: _speak,
+                  child: const Icon(Icons.play_arrow),
+                ),
+                const SizedBox(width: 12),
+                FloatingActionButton(
+                  heroTag: 'stop_fab2',
+                  onPressed: _stop,
+                  child: const Icon(Icons.stop),
+                ),
+              ],
+            );
+          }
+          return FloatingActionButton(
+            heroTag: 'play_fab',
+            onPressed: _speak,
+            child: const Icon(Icons.volume_up),
+          );
         },
-        icon: Consumer(
-          builder: (context, ref, _) {
-            final isPlaying = ref.watch(ttsServiceProvider).isPlaying;
-            return Icon(isPlaying ? Icons.stop : Icons.volume_up);
-          },
-        ),
-        label: Consumer(
-          builder: (context, ref, _) {
-            final isPlaying = ref.watch(ttsServiceProvider).isPlaying;
-            return Text(isPlaying ? '停止' : '朗读');
-          },
-        ),
       ),
     );
   }

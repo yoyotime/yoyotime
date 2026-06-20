@@ -232,6 +232,20 @@ class PreferencesScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
+          _sectionHeader(context, '阅读'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.auto_stories_outlined),
+              title: const Text('阅读回顾'),
+              subtitle: const Text('本周阅读概览与足迹'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                final router = GoRouter.of(context);
+                router.push('/review');
+              },
+            ),
+          ),
+          const SizedBox(height: 24),
           _sectionHeader(context, '分享'),
           Card(
             child: ListTile(
