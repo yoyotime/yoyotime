@@ -106,7 +106,7 @@ class TbkApi {
     };
 
     final params = _buildParams(
-      method: 'taobao.tbk.dg.material.optional',
+      method: 'taobao.tbk.dg.material.optional.upgrade',
       extra: extra,
     );
 
@@ -120,7 +120,9 @@ class TbkApi {
       );
 
       final body = response.data as Map<String, dynamic>;
-      final resultKey = 'tbk_dg_material_optional_response';
+      final resultKey = body.containsKey('tbk_dg_material_optional_upgrade_response')
+          ? 'tbk_dg_material_optional_upgrade_response'
+          : 'tbk_dg_material_optional_response';
       final result = body[resultKey] as Map<String, dynamic>?;
       if (result == null) return [];
 

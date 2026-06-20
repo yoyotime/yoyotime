@@ -45,13 +45,10 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: 清理 Gradle 缓存
-        run: |
-          rm -rf ~/.gradle/caches
-          rm -rf ~/.gradle/wrapper
-          flutter pub get
-
-      - run: flutter build apk --release --target-platform android-arm64
+      - name: 构建 APK（临时 Gradle 缓存）
+        run: flutter build apk --release --target-platform android-arm64
+        env:
+          GRADLE_USER_HOME: /tmp/gradle-home-${{ github.sha }}
 
       - uses: actions/upload-artifact@v4
         with:
