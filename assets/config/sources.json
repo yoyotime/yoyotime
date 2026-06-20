@@ -170,6 +170,16 @@
       "topics": ["日本", "财经", "亚洲"],
       "enabled": true,
       "updateIntervalMinutes": 120
+    },
+    {
+      "id": "npr",
+      "name": "NPR新闻",
+      "url": "https://feeds.npr.org/1001/rss.xml",
+      "type": "rss",
+      "category": "international",
+      "topics": ["美国", "国际", "新闻"],
+      "enabled": true,
+      "updateIntervalMinutes": 120
     }
   ]
 }
