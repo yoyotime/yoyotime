@@ -16,3 +16,8 @@ final contentRepositoryProvider = Provider<ContentRepository>((ref) {
 final preferencesRepositoryProvider = Provider<PreferencesRepository>((ref) {
   return ref.watch(storageServiceProvider);
 });
+
+// Legacy alias for backward compatibility
+final feedFetcherProvider = Provider<FeedFetcher>((ref) {
+  return FeedFetcher();
+});

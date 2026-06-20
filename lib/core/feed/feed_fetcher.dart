@@ -26,20 +26,45 @@ class FeedFetcher implements FeedSourceRepository {
   List<String> get lastErrors => _lastErrors;
 
   @override
-  Future<List<FeedSource>> loadSources() async {
+  Future<List<FeedSource>> getAll() async {
     final raw = await rootBundle.loadString('assets/config/sources.json');
     final json = jsonDecode(raw) as Map<String, dynamic>;
     final list = json['sources'] as List<dynamic>;
     _sources = list
         .map((e) => FeedSource.fromJson(e as Map<String, dynamic>))
-        .where((s) => s.enabled)
         .toList();
     return _sources;
   }
 
   @override
+  Future<FeedSource?> getById(String id) async {
+    if (_sources.isEmpty) await getAll();
+    try {
+      return _sources.firstWhere((s) => s.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> save(FeedSource source) async {
+    // RSS sources are config-driven, save is not implemented
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    // RSS sources are config-driven, delete is not implemented
+  }
+
+  @override
+  Future<List<FeedSource>> getEnabled() async {
+    if (_sources.isEmpty) await getAll();
+    return _sources.where((s) => s.enabled).toList();
+  }
+
+  @override
   Future<List<ContentItem>> fetchAll() async {
-    if (_sources.isEmpty) await loadSources();
+    if (_sources.isEmpty) await getEnabled();
 
     _lastErrors = [];
     final results = await Future.wait(

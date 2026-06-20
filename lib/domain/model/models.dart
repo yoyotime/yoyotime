@@ -7,3 +7,4 @@ export 'user_preferences.dart';
 export 'feed_source.dart';
 export 'value_object.dart';
 export 'entity.dart';
+export '../repository/base_repository.dart';
