@@ -8,6 +8,7 @@ class ContentCard extends StatelessWidget {
   final VoidCallback? onTap;
   final ValueChanged<FeedbackAction>? onFeedback;
   final VoidCallback? onPlay;
+  final bool enableSwipe;
 
   const ContentCard({
     super.key,
@@ -15,11 +16,58 @@ class ContentCard extends StatelessWidget {
     this.onTap,
     this.onFeedback,
     this.onPlay,
+    this.enableSwipe = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    
+    if (!enableSwipe || onFeedback == null) {
+      return _buildCard(context, theme);
+    }
+    
+    return Dismissible(
+      key: Key(item.id),
+      direction: DismissDirection.horizontal,
+      background: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          Icons.bookmark_add,
+          color: theme.colorScheme.primary,
+        ),
+      ),
+      secondaryBackground: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          Icons.thumb_down,
+          color: theme.colorScheme.error,
+        ),
+      ),
+      onDismissed: (direction) {
+        if (direction == DismissDirection.startToEnd) {
+          onFeedback!(FeedbackAction.bookmark);
+        } else {
+          onFeedback!(FeedbackAction.dislike);
+        }
+      },
+      child: _buildCard(context, theme),
+    );
+  }
+
+  Widget _buildCard(BuildContext context, ThemeData theme) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       elevation: 0,
