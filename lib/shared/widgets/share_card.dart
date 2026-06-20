@@ -13,6 +13,6 @@ ${summary.length > 100 ? '${summary.substring(0, 100)}...' : summary}
 
 来自「悠悠时光」|$sourceName · $readTime分钟''';
 
-    await SharePlus.instance.share(ShareParams(text: text));
+    await Share.share(text);
   }
 }

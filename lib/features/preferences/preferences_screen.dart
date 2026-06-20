@@ -452,9 +452,7 @@ class PreferencesScreen extends ConsumerWidget {
 
   Future<void> _shareApp(BuildContext context) async {
     final url = 'https://github.com/anomaloco/yoyotime/releases/latest';
-    await SharePlus.instance.share(ShareParams(
-      text: '推荐一个安静的好 App——悠悠时光，每天 10 条精选内容，反焦虑、反成瘾、反窥探。下载：$url',
-    ));
+    await Share.share('推荐一个安静的好 App——悠悠时光，每天 10 条精选内容，反焦虑、反成瘾、反窥探。下载：$url');
   }
 }
 
