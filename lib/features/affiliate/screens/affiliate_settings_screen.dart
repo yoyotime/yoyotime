@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/storage/affiliate_storage.dart';
 import '../providers/affiliate_providers.dart';
 
 class AffiliateSettingsScreen extends ConsumerWidget {
@@ -10,7 +11,6 @@ class AffiliateSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(affiliateUserProvider);
     final sourcesAsync = ref.watch(productSourcesProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('好物设置')),

@@ -14,6 +14,7 @@ class PopupVisibleNotifier extends Notifier<bool> {
     final service = ref.read(popupServiceProvider);
     service.onShowPopup = () => show();
     service.start();
+    ref.onDispose(() => service.stop());
     return false;
   }
 
@@ -23,12 +24,6 @@ class PopupVisibleNotifier extends Notifier<bool> {
 
   void hide() {
     state = false;
-  }
-
-  @override
-  void dispose() {
-    ref.read(popupServiceProvider).stop();
-    super.dispose();
   }
 }
 

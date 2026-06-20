@@ -8,7 +8,6 @@ import '../../domain/model/affiliate_models.dart';
 
 class AffiliateStorage {
   static const _userKey = 'affiliate_user_v1';
-  static const _pointsKey = 'affiliate_points_v1';
   static const _productsFile = 'affiliate_products.json';
   static const _recordsFile = 'affiliate_records.json';
   static const _sourcesKey = 'affiliate_sources_v1';

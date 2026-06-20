@@ -47,6 +47,8 @@ jobs:
 
       - name: 清理 Gradle 缓存
         run: |
+          chmod +x android/gradlew
+          android/gradlew --stop 2>/dev/null || true
           rm -rf ~/.gradle/caches
           rm -rf ~/.gradle/wrapper
           flutter pub get

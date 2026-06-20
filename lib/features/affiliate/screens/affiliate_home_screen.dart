@@ -12,7 +12,6 @@ class AffiliateHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final productsAsync = ref.watch(productsProvider);
     final userAsync = ref.watch(affiliateUserProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
