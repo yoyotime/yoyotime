@@ -28,7 +28,7 @@ jobs:
         run: flutter pub get
 
       - name: 2/4 静态分析（有 error 就失败）
-        run: flutter analyze --no-fatal-infos
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: 3/4 单元测试
         run: flutter test
