@@ -7,6 +7,7 @@ import '../../domain/event/events.dart';
 import '../../domain/model/models.dart';
 import '../../shared/utils/html_utils.dart';
 import '../../shared/widgets/breathing_animation.dart';
+import '../../shared/widgets/share_card.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/storage/storage_service.dart';
 
@@ -105,6 +106,20 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(content.sourceName, style: theme.textTheme.titleSmall),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () async {
+              await ShareService().shareContent(
+                context: context,
+                title: content.title,
+                summary: content.summary,
+                sourceName: content.sourceName,
+                readTime: content.estimatedReadTimeMinutes,
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 80),
