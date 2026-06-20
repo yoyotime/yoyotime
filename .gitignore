@@ -6,6 +6,7 @@ flutter_*.png
 .idea/
 .metadata
 *.lock
+!pubspec.lock
 .gradle/
 local.properties
 android/.gradle/
