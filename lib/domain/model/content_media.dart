@@ -1,4 +1,6 @@
-class ContentMedia {
+import 'value_object.dart';
+
+class ContentMedia extends ValueObject<ContentMedia> {
   final String type;
   final String url;
   final String? alt;
@@ -10,6 +12,9 @@ class ContentMedia {
     this.alt,
     this.duration,
   });
+
+  @override
+  ContentMedia get props => this;
 
   factory ContentMedia.fromJson(Map<String, dynamic> json) => ContentMedia(
         type: json['type'] as String,

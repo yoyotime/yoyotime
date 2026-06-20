@@ -1,4 +1,7 @@
-class Product {
+import 'entity.dart';
+
+class Product extends Entity {
+  @override
   final String id;
   final String title;
   final String? imageUrl;

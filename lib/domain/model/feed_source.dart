@@ -1,4 +1,6 @@
-class FeedSource {
+import 'value_object.dart';
+
+class FeedSource extends ValueObject<FeedSource> {
   final String id;
   final String name;
   final String url;
@@ -18,6 +20,9 @@ class FeedSource {
     this.enabled = true,
     this.updateIntervalMinutes = 60,
   });
+
+  @override
+  FeedSource get props => this;
 
   factory FeedSource.fromJson(Map<String, dynamic> json) => FeedSource(
         id: json['id'] as String,

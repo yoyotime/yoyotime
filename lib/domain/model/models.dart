@@ -5,3 +5,5 @@ export 'feedback_action.dart';
 export 'app_theme_mode.dart';
 export 'user_preferences.dart';
 export 'feed_source.dart';
+export 'value_object.dart';
+export 'entity.dart';
