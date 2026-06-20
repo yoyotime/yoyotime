@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/update/update_service.dart';
+import '../../core/notifications/notification_service.dart';
 import '../../shared/models/content.dart';
 import 'preferences_controller.dart';
 
@@ -200,6 +201,27 @@ class PreferencesScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _sectionHeader(context, '提醒'),
+          Card(
+            child: SwitchListTile(
+              secondary: const Icon(Icons.notifications_outlined),
+              title: const Text('每日提醒'),
+              subtitle: const Text('每天提醒你看看今天的世界'),
+              value: prefs.dailyReminder,
+              onChanged: (v) async {
+                controller.update(prefs.copyWith(dailyReminder: v));
+                if (v) {
+                  await ref.read(notificationServiceProvider).requestPermission();
+                  await ref.read(notificationServiceProvider).scheduleDailyReminder(
+                    hour: prefs.reminderHour,
+                  );
+                } else {
+                  await ref.read(notificationServiceProvider).cancelAll();
+                }
+              },
             ),
           ),
           const SizedBox(height: 24),
