@@ -61,10 +61,8 @@ jobs:
       - name: 输出错误摘要
         if: failure()
         run: |
-          echo "### Gradle 构建失败日志（尾部 80 行）" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -80 build.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          ERROR_LINES=$(tail -30 build.log)
+          echo "::error title=Gradle 构建错误（最后 30 行）::$(echo "$ERROR_LINES" | head -c 32000)"
 
       - uses: actions/upload-artifact@v4
         if: always()
