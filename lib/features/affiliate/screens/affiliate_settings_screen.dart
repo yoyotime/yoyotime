@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/storage/affiliate_storage.dart';
+import '../../../core/tbk/tbk_config.dart';
+import '../../../core/tbk/tbk_service.dart';
 import '../providers/affiliate_providers.dart';
 
 class AffiliateSettingsScreen extends ConsumerWidget {
@@ -70,6 +72,23 @@ class AffiliateSettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
+          _sectionHeader(context, '淘宝客 API'),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.key),
+                  title: const Text('App Key'),
+                  subtitle: Text(
+                    ref.watch(tbkConfiguredProvider).whenOrNull(data: (c) => c ? '已配置' : '未配置') ?? '未配置',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _editTbkConfig(context, ref),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           _sectionHeader(context, '我的发布'),
           Card(
             child: ListTile(
@@ -97,6 +116,84 @@ class AffiliateSettingsScreen extends ConsumerWidget {
             ),
       ),
     );
+  }
+
+  Future<void> _editTbkConfig(BuildContext context, WidgetRef ref) async {
+    final config = ref.read(tbkConfigProvider);
+    final appKeyCtrl = TextEditingController(text: await config.getAppKey() ?? '');
+    final appSecretCtrl = TextEditingController(text: await config.getAppSecret() ?? '');
+    final adzoneIdCtrl = TextEditingController(text: await config.getAdzoneId() ?? '');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('淘宝客 API 配置'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: appKeyCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'App Key',
+                  hintText: '从淘宝开放平台获取',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: appSecretCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'App Secret',
+                  hintText: '从淘宝开放平台获取',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: adzoneIdCtrl,
+                decoration: const InputDecoration(
+                  labelText: '推广位 ID (adzone_id)',
+                  hintText: '在淘宝客后台创建',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '需要先在 open.taobao.com 注册开发者、创建应用、申请 tbk 权限',
+                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      await config.setAppKey(appKeyCtrl.text.trim());
+      await config.setAppSecret(appSecretCtrl.text.trim());
+      await config.setAdzoneId(adzoneIdCtrl.text.trim());
+      ref.invalidate(tbkConfiguredProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('淘宝客 API 配置已保存')),
+        );
+      }
+    }
   }
 
   Future<void> _editSources(

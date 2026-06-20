@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'core/storage/affiliate_storage.dart';
 import 'core/storage/storage_service.dart';
+import 'core/tbk/tbk_config.dart';
 import 'domain/event/event_handler_service.dart';
 
 void main() async {
@@ -10,6 +11,7 @@ void main() async {
   final container = ProviderContainer();
   await container.read(storageServiceProvider).init();
   await container.read(affiliateStorageProvider).init();
+  await container.read(tbkConfigProvider).init();
   container.read(eventHandlerProvider);
   runApp(UncontrolledProviderScope(
     container: container,
