@@ -96,6 +96,6 @@ powershell -ExecutionPolicy Bypass -File preflight.ps1
 ## 审核清单（推前必查）
 1. ToneEngine evaluate() — 取最严重 action（block > demote > allow）
 2. FeedFetcher — 有 User-Agent，_fetchJsonFeed 有 try-catch
-3. share_plus — 用 SharePlus.instance.share(ShareParams(...))
+3. share_plus — 用 Share.share()（^7.2.2，新版 API 因依赖冲突不可用）
 4. 每日限制 — load() 正常展示 10 条，消耗达 10 条后提示，refresh() 可突破
 5. 变量命名 — 避免 controller_ 等冲突名
