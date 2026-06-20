@@ -148,14 +148,62 @@ class GreetingService {
     final month = dt.month;
     final day = dt.day;
 
+    // 元旦
     if (month == 1 && day == 1) return '新年第一天，愿一切顺利';
+
+    // 春节（农历正月初一，这里简化为公历2月）
     if (month == 2 && day >= 10 && day <= 17) return '春节快乐，阖家幸福';
+
+    // 元宵节
+    if (month == 2 && day >= 18 && day <= 20) return '元宵节快乐，阖家团圆';
+
+    // 妇女节
     if (month == 3 && day == 8) return '妇女节快乐';
+
+    // 植树节
+    if (month == 3 && day == 12) return '植树节，为地球添一抹绿';
+
+    // 清明节
+    if (month == 4 && day >= 4 && day <= 6) return '清明时节，缅怀先人';
+
+    // 劳动节
     if (month == 5 && day == 1) return '劳动节快乐';
+
+    // 青年节
+    if (month == 5 && day == 4) return '青年节快乐，愿你永远年轻';
+
+    // 儿童节
     if (month == 6 && day == 1) return '儿童节快乐，愿你保有童心';
+
+    // 端午节
+    if (month == 6 && day >= 10 && day <= 12) return '端午节快乐，安康顺遂';
+
+    // 七夕节
+    if (month == 8 && day >= 7 && day <= 9) return '七夕节快乐，愿有情人终成眷属';
+
+    // 中秋节
+    if (month == 9 && day >= 15 && day <= 17) return '中秋节快乐，月圆人团圆';
+
+    // 国际和平日
     if (month == 9 && day == 21) return '国际和平日，愿世界安宁';
-    if (month == 10 && day == 1) return '国庆节快乐';
+
+    // 国庆节
+    if (month == 10 && day >= 1 && day <= 7) return '国庆节快乐';
+
+    // 重阳节
+    if (month == 10 && day >= 9 && day <= 11) return '重阳节快乐，敬老爱老';
+
+    // 万圣节
+    if (month == 10 && day == 31) return '万圣节快乐';
+
+    // 感恩节
+    if (month == 11 && day >= 22 && day <= 28) return '感恩节快乐，感谢有你';
+
+    // 圣诞节
     if (month == 12 && day == 25) return '圣诞快乐';
+
+    // 平安夜
+    if (month == 12 && day == 24) return '平安夜快乐，平安喜乐';
 
     return null;
   }

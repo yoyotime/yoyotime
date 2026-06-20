@@ -35,6 +35,11 @@ class PolicyConfig {
 class ToneEngine {
   Map<String, PolicyConfig> _categories = {};
   String _defaultPolicy = 'normal';
+  bool _isLoaded = false;
+  DateTime? _lastLoadedAt;
+
+  bool get isLoaded => _isLoaded;
+  DateTime? get lastLoadedAt => _lastLoadedAt;
 
   Future<void> loadRules() async {
     final raw = await rootBundle.loadString('assets/config/tone_rules.json');
@@ -42,6 +47,8 @@ class ToneEngine {
     _defaultPolicy = json['defaultPolicy'] as String? ?? 'normal';
 
     final cats = json['categories'] as Map<String, dynamic>? ?? {};
+    final newCategories = <String, PolicyConfig>{};
+
     for (final entry in cats.entries) {
       final catJson = entry.value as Map<String, dynamic>;
       final rulesJson = catJson['rules'] as List<dynamic>? ?? [];
@@ -55,11 +62,19 @@ class ToneEngine {
         );
       }).toList();
 
-      _categories[entry.key] = PolicyConfig(
+      newCategories[entry.key] = PolicyConfig(
         policy: catJson['policy'] as String? ?? _defaultPolicy,
         rules: rules,
       );
     }
+
+    _categories = newCategories;
+    _isLoaded = true;
+    _lastLoadedAt = DateTime.now();
+  }
+
+  Future<void> reloadRules() async {
+    await loadRules();
   }
 
   ToneAction _parseAction(String action) {
@@ -74,6 +89,10 @@ class ToneEngine {
   }
 
   ToneResult evaluate(ContentItem item) {
+    if (!_isLoaded) {
+      return const ToneResult(action: ToneAction.allow);
+    }
+
     final combinedText = '${item.title} ${item.summary} ${item.fullText ?? ''}';
 
     ToneAction mostSevere = ToneAction.allow;
