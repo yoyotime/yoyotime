@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/model/content_item.dart';
 import '../../domain/event/event_bus_provider.dart';
@@ -24,6 +25,9 @@ class AudioPlayerState {
           : null;
 
   bool get hasMore => currentIndex < queue.length - 1;
+  bool get hasPrevious => currentIndex > 0;
+  bool get hasQueue => queue.isNotEmpty;
+  int get queueLength => queue.length;
 
   AudioPlayerState copyWith({
     List<ContentItem>? queue,
@@ -76,6 +80,7 @@ class AudioPlayerController extends Notifier<AudioPlayerState> {
     );
 
     await _playCurrent();
+    developer.log('Playing queue: ${items.length} items from $startIndex', name: 'audio');
   }
 
   Future<void> _playCurrent() async {
@@ -90,11 +95,13 @@ class AudioPlayerController extends Notifier<AudioPlayerState> {
     );
 
     await _tts.speak(cleanText);
+    developer.log('Playing: ${current.title}', name: 'audio');
   }
 
   Future<void> _playNext() async {
     if (!state.hasMore) {
       state = state.copyWith(isPlaying: false, isPaused: false);
+      developer.log('Queue finished', name: 'audio');
       return;
     }
 
@@ -105,18 +112,21 @@ class AudioPlayerController extends Notifier<AudioPlayerState> {
   Future<void> pause() async {
     await _tts.stop();
     state = state.copyWith(isPaused: true);
+    developer.log('Paused', name: 'audio');
   }
 
   Future<void> resume() async {
     if (state.isPaused) {
       await _playCurrent();
       state = state.copyWith(isPaused: false);
+      developer.log('Resumed', name: 'audio');
     }
   }
 
   Future<void> stop() async {
     await _tts.stop();
     state = const AudioPlayerState();
+    developer.log('Stopped', name: 'audio');
   }
 
   Future<void> playNext() async {
@@ -129,7 +139,7 @@ class AudioPlayerController extends Notifier<AudioPlayerState> {
 
   Future<void> playPrevious() async {
     await _tts.stop();
-    if (state.currentIndex > 0) {
+    if (state.hasPrevious) {
       state = state.copyWith(currentIndex: state.currentIndex - 1);
       await _playCurrent();
     }

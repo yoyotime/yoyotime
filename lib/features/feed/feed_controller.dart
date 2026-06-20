@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/repository/repository_providers.dart';
 import '../../domain/service/tone_engine_provider.dart';
@@ -40,6 +41,10 @@ class FeedState {
         lastUpdated: lastUpdated ?? this.lastUpdated,
         failedSources: failedSources ?? this.failedSources,
       );
+
+  int get itemCount => items.length;
+  bool get hasItems => items.isNotEmpty;
+  bool get hasError => error != null;
 }
 
 class FeedController extends Notifier<FeedState> {
@@ -87,6 +92,7 @@ class FeedController extends Notifier<FeedState> {
       ref.read(eventBusProvider).publish(
         DailyLimitReachedEvent(count: await _dailyLimit.getConsumedCount()),
       );
+      developer.log('Daily limit reached', name: 'feed');
       return;
     }
 
@@ -128,7 +134,10 @@ class FeedController extends Notifier<FeedState> {
           lastUpdated: DateTime.now(),
         );
       }
+
+      developer.log('Feed loaded: ${result.items.length} items', name: 'feed');
     } catch (e) {
+      developer.log('Feed load error: $e', name: 'feed');
       final demo = cached.isNotEmpty ? state.items : _demoContents();
       if (cached.isEmpty) {
         await _cacheFeed.execute(demo);
@@ -215,6 +224,8 @@ class FeedController extends Notifier<FeedState> {
       final updated = state.items.where((c) => c.id != item.id).toList();
       state = state.copyWith(items: updated);
     }
+
+    developer.log('Content action: ${item.id} -> $action', name: 'feed');
   }
 }
 
