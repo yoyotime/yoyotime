@@ -98,4 +98,7 @@ powershell -ExecutionPolicy Bypass -File preflight.ps1
 2. FeedFetcher — 有 User-Agent，_fetchJsonFeed 有 try-catch
 3. share_plus — 用 Share.share()（^7.2.2，新版 API 因依赖冲突不可用）
 4. 每日限制 — load() 正常展示 10 条，消耗达 10 条后提示，refresh() 可突破
-5. 变量命名 — 避免 controller_ 等冲突名
+5. TTS pause — TtsService.pause() 设置 _isPaused、触发 notifyListeners；speak() 重置 _isPaused
+6. 听 tab — 队列非空时显示播放列表 + 控制栏；空时提示去今日添加内容；右上角切换语音设置
+7. TBK/PDD 降级 — 无 API key 且无商品时显示"请先配置商品来源" + 去配置按钮
+8. 变量命名 — 避免 controller_ 等冲突名
