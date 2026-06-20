@@ -7,6 +7,7 @@ import 'package:yoyotime/core/storage/storage_service.dart';
 import 'package:yoyotime/core/storage/affiliate_storage.dart';
 import 'package:yoyotime/core/tbk/tbk_config.dart';
 import 'package:yoyotime/features/affiliate/services/popup_service.dart';
+import 'package:yoyotime/features/affiliate/providers/affiliate_providers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -16,13 +17,17 @@ void main() {
   });
 
   testWidgets('App boots and renders main shell', (WidgetTester tester) async {
-    final container = ProviderContainer();
+    final noopService = PopupService();
+    noopService.setEnabled(false);
+
+    final container = ProviderContainer(overrides: [
+      popupServiceProvider.overrideWithValue(noopService),
+    ]);
     await container.read(storageServiceProvider).init();
     await container.read(affiliateStorageProvider).init();
     await container.read(tbkConfigProvider).init();
 
     addTearDown(() {
-      container.read(popupServiceProvider).stop();
       container.dispose();
     });
 
@@ -33,7 +38,6 @@ void main() {
       ),
     );
     await tester.pump();
-    container.read(popupServiceProvider).stop();
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
