@@ -45,10 +45,17 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: 构建 APK（临时 Gradle 缓存）
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: 构建 APK
         run: flutter build apk --release --target-platform android-arm64
-        env:
-          GRADLE_USER_HOME: /tmp/gradle-home-${{ github.sha }}
 
       - uses: actions/upload-artifact@v4
         with:
