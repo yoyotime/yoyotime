@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/pdd/pdd_config.dart';
+import '../../../core/pdd/pdd_service.dart';
 import '../../../core/storage/affiliate_storage.dart';
 import '../../../core/tbk/tbk_config.dart';
 import '../../../core/tbk/tbk_service.dart';
@@ -84,6 +86,24 @@ class AffiliateSettingsScreen extends ConsumerWidget {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _editTbkConfig(context, ref),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const SizedBox(height: 24),
+          _sectionHeader(context, '拼多多 API'),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.key),
+                  title: const Text('Client ID'),
+                  subtitle: Text(
+                    ref.watch(pddConfiguredProvider).whenOrNull(data: (c) => c ? '已配置' : '未配置') ?? '未配置',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _editPddConfig(context, ref),
                 ),
               ],
             ),
@@ -191,6 +211,84 @@ class AffiliateSettingsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('淘宝客 API 配置已保存')),
+        );
+      }
+    }
+  }
+
+  Future<void> _editPddConfig(BuildContext context, WidgetRef ref) async {
+    final config = ref.read(pddConfigProvider);
+    final clientIdCtrl = TextEditingController(text: await config.getClientId() ?? '');
+    final clientSecretCtrl = TextEditingController(text: await config.getClientSecret() ?? '');
+    final pidCtrl = TextEditingController(text: await config.getPid() ?? '');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('拼多多 API 配置'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: clientIdCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Client ID',
+                  hintText: '从拼多多开放平台获取',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: clientSecretCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Client Secret',
+                  hintText: '从拼多多开放平台获取',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: pidCtrl,
+                decoration: const InputDecoration(
+                  labelText: '推广位 PID',
+                  hintText: '多多进宝后台创建，格式: 12345_67890',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '需要先在 open.pinduoduo.com 注册开发者、创建应用、申请多多进宝权限',
+                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      await config.setClientId(clientIdCtrl.text.trim());
+      await config.setClientSecret(clientSecretCtrl.text.trim());
+      await config.setPid(pidCtrl.text.trim());
+      ref.invalidate(pddConfiguredProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('拼多多 API 配置已保存')),
         );
       }
     }
