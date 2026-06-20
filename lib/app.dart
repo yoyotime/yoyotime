@@ -10,10 +10,21 @@ import 'features/review/reading_review_screen.dart';
 import 'features/preferences/preferences_screen.dart';
 import 'features/shell/home_shell.dart';
 import 'features/preferences/preferences_controller.dart';
+import 'features/affiliate/screens/affiliate_home_screen.dart';
+import 'features/affiliate/screens/product_detail_screen.dart';
+import 'features/affiliate/screens/publish_product_screen.dart';
+import 'features/affiliate/screens/register_screen.dart';
+import 'features/affiliate/screens/points_screen.dart';
+import 'features/affiliate/screens/affiliate_settings_screen.dart';
+import 'features/affiliate/providers/affiliate_providers.dart';
+import 'features/affiliate/widgets/affiliate_popup.dart';
 import 'shared/models/content.dart';
+
+final _navigatorKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    navigatorKey: _navigatorKey,
     initialLocation: '/feed',
     routes: [
       ShellRoute(
@@ -29,6 +40,34 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/reader/:id',
         builder: (_, state) => ReaderScreen(contentId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/affiliate',
+        builder: (_, __) => const AffiliateHomeScreen(),
+        routes: [
+          GoRoute(
+            path: 'product/:id',
+            builder: (_, state) => ProductDetailScreen(
+              productId: state.pathParameters['id']!,
+            ),
+          ),
+          GoRoute(
+            path: 'publish',
+            builder: (_, __) => const PublishProductScreen(),
+          ),
+          GoRoute(
+            path: 'register',
+            builder: (_, __) => const RegisterScreen(),
+          ),
+          GoRoute(
+            path: 'points',
+            builder: (_, __) => const PointsScreen(),
+          ),
+          GoRoute(
+            path: 'settings',
+            builder: (_, __) => const AffiliateSettingsScreen(),
+          ),
+        ],
       ),
     ],
   );
@@ -72,6 +111,15 @@ class YoyotimeApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
+
+    ref.listen<bool>(popupVisibleProvider, (_, visible) {
+      if (!visible) return;
+      showDialog(
+        context: _navigatorKey.currentContext!,
+        barrierDismissible: false,
+        builder: (_) => const AffiliatePopup(),
+      ).then((_) => ref.read(popupVisibleProvider.notifier).hide());
+    });
 
     final lightTheme = FlexThemeData.light(
       scheme: FlexScheme.green,

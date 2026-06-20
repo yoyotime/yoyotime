@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/update/update_service.dart';
@@ -200,6 +201,33 @@ class PreferencesScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _sectionHeader(context, '好物'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.store_outlined),
+              title: const Text('好物推荐'),
+              subtitle: const Text('看商品·赚积分·兑现金'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                final router = GoRouter.of(context);
+                router.push('/affiliate');
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('好物设置'),
+              subtitle: const Text('商品来源、账号管理'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                final router = GoRouter.of(context);
+                router.push('/affiliate/settings');
+              },
             ),
           ),
           const SizedBox(height: 24),

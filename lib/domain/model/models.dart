@@ -1,3 +1,4 @@
+export 'affiliate_models.dart';
 export 'content_item.dart';
 export 'content_media.dart';
 export 'feedback_action.dart';
