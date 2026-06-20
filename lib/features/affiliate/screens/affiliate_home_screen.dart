@@ -101,64 +101,13 @@ class _AffiliateHomeScreenState extends ConsumerState<AffiliateHomeScreen> {
             child: _searchQuery.isNotEmpty
                 ? _buildSearchResults(searchResults, _usePdd ? pddConfigured : tbkConfigured)
                 : productsAsync.when(
-                    data: (products) => _buildDefaultView(products, tbkConfigured, pddConfigured),
+                    data: (products) => _ProductGrid(products: products),
                     loading: () => const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Center(child: Text('加载失败: $e')),
                   ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDefaultView(
-    List<Product> products,
-    AsyncValue<bool> tbkConfigured,
-    AsyncValue<bool> pddConfigured,
-  ) {
-    if (products.isNotEmpty) return _ProductGrid(products: products);
-    return tbkConfigured.when(
-      data: (tbkOk) => pddConfigured.when(
-        data: (pddOk) {
-          if (tbkOk || pddOk) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.store_outlined, size: 64, color: Colors.grey[300]),
-                  const SizedBox(height: 16),
-                  Text('还没有商品', style: TextStyle(color: Colors.grey[500])),
-                ],
-              ),
-            );
-          }
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.settings, size: 48, color: Colors.grey[300]),
-                const SizedBox(height: 16),
-                const Text('请先配置商品来源'),
-                const SizedBox(height: 4),
-                Text(
-                  '需要淘宝客或拼多多 API 密钥才能搜索商品',
-                  style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                FilledButton.tonal(
-                  onPressed: () => context.push('/affiliate/settings'),
-                  child: const Text('去配置'),
-                ),
-              ],
-            ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('加载失败: $e')),
-      ),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('加载失败: $e')),
     );
   }
 
