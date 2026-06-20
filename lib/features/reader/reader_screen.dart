@@ -111,7 +111,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             icon: const Icon(Icons.share_outlined),
             onPressed: () async {
               await ShareService().shareContent(
-                context: context,
                 title: content.title,
                 summary: content.summary,
                 sourceName: content.sourceName,
