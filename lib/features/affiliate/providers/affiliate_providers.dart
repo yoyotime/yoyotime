@@ -13,9 +13,12 @@ class PopupVisibleNotifier extends Notifier<bool> {
   bool build() {
     final service = ref.read(popupServiceProvider);
     service.onShowPopup = () => show();
-    service.start();
     ref.onDispose(() => service.stop());
     return false;
+  }
+
+  void startTimer() {
+    ref.read(popupServiceProvider).start();
   }
 
   void show() {

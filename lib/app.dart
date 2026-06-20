@@ -121,6 +121,10 @@ class YoyotimeApp extends ConsumerWidget {
       ).then((_) => ref.read(popupVisibleProvider.notifier).hide());
     });
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(popupVisibleProvider.notifier).startTimer();
+    });
+
     final lightTheme = FlexThemeData.light(
       scheme: FlexScheme.green,
       appBarStyle: FlexAppBarStyle.background,
