@@ -7,8 +7,6 @@ class UserPreferences {
   final bool preferAudio;
   final double ttsSpeed;
   final AppThemeMode themeMode;
-  final bool dailyReminder;
-  final int reminderHour;
 
   UserPreferences({
     required this.description,
@@ -17,8 +15,6 @@ class UserPreferences {
     this.preferAudio = false,
     this.ttsSpeed = 1.0,
     this.themeMode = AppThemeMode.system,
-    this.dailyReminder = false,
-    this.reminderHour = 9,
   })  : _interests = List.unmodifiable(interests),
         _blocklist = List.unmodifiable(blocklist);
 
@@ -35,8 +31,6 @@ class UserPreferences {
           (e) => e.name == json['theme_mode'],
           orElse: () => AppThemeMode.system,
         ),
-        dailyReminder: json['daily_reminder'] as bool? ?? false,
-        reminderHour: json['reminder_hour'] as int? ?? 9,
       );
 
   Map<String, dynamic> toJson() => {
@@ -46,8 +40,6 @@ class UserPreferences {
         'prefer_audio': preferAudio,
         'tts_speed': ttsSpeed,
         'theme_mode': themeMode.name,
-        'daily_reminder': dailyReminder,
-        'reminder_hour': reminderHour,
       };
 
   UserPreferences copyWith({
@@ -57,8 +49,6 @@ class UserPreferences {
     bool? preferAudio,
     double? ttsSpeed,
     AppThemeMode? themeMode,
-    bool? dailyReminder,
-    int? reminderHour,
   }) =>
       UserPreferences(
         description: description ?? this.description,
@@ -67,8 +57,6 @@ class UserPreferences {
         preferAudio: preferAudio ?? this.preferAudio,
         ttsSpeed: ttsSpeed ?? this.ttsSpeed,
         themeMode: themeMode ?? this.themeMode,
-        dailyReminder: dailyReminder ?? this.dailyReminder,
-        reminderHour: reminderHour ?? this.reminderHour,
       );
 
   bool isBlocked(String title, String summary, List<String> topics) {
