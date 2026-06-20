@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/storage/affiliate_storage.dart';
 import '../../../domain/model/affiliate_models.dart';
+import '../../../shared/widgets/voice_input_dialog.dart';
 import '../providers/affiliate_providers.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -74,10 +75,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 prefixIcon: const Icon(Icons.person_outline),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.mic, size: 20),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('语音输入需要 speech_to_text 权限')),
-                    );
+                  onPressed: () async {
+                    final result = await showVoiceInputDialog(context, hint: '说出你的昵称');
+                    if (result != null && result.isNotEmpty) {
+                      _nameCtrl.text = result;
+                    }
                   },
                 ),
               ),

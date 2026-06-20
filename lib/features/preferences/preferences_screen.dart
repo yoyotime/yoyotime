@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/tts/tts_service.dart';
 import '../../core/update/update_service.dart';
 import '../../shared/models/content.dart';
+import '../../shared/widgets/voice_input_dialog.dart';
 import 'preferences_controller.dart';
 
 class PreferencesScreen extends ConsumerWidget {
@@ -314,9 +315,10 @@ class PreferencesScreen extends ConsumerWidget {
   }
 
   Future<void> _voiceInput(BuildContext context, PreferencesController controller) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('语音输入需要 speech_to_text 权限')),
-    );
+    final result = await showVoiceInputDialog(context, hint: '描述你的兴趣偏好');
+    if (result != null && result.isNotEmpty) {
+      await controller.setDescription(result);
+    }
   }
 
   Future<void> _addTopic(
@@ -333,14 +335,15 @@ class PreferencesScreen extends ConsumerWidget {
           controller: textCtrl,
           decoration: InputDecoration(
             hintText: isInterest ? '如：儿童安全' : '如：娱乐八卦',
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.mic, size: 20),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('语音输入需要 speech_to_text 权限')),
-                );
-              },
-            ),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.mic, size: 20),
+                  onPressed: () async {
+                    final result = await showVoiceInputDialog(context, hint: isInterest ? '输入你感兴趣的话题' : '输入你不想看的话题');
+                    if (result != null && result.isNotEmpty) {
+                      textCtrl.text = result;
+                    }
+                  },
+                ),
           ),
         ),
         actions: [
@@ -449,9 +452,9 @@ class PreferencesScreen extends ConsumerWidget {
 
   Future<void> _shareApp(BuildContext context) async {
     final url = 'https://github.com/anomaloco/yoyotime/releases/latest';
-    await Share.share(
-      '推荐一个安静的好 App——悠悠时光，每天 10 条精选内容，反焦虑、反成瘾、反窥探。下载：$url',
-    );
+    await SharePlus.instance.share(ShareParams(
+      text: '推荐一个安静的好 App——悠悠时光，每天 10 条精选内容，反焦虑、反成瘾、反窥探。下载：$url',
+    ));
   }
 }
 

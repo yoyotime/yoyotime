@@ -80,6 +80,19 @@ powershell -ExecutionPolicy Bypass -File preflight.ps1
 - yt.bat 镜像列表顺序：gh-proxy.com → ghfast.top → mirror.ghproxy.com → ... → github.com
 - push 格式：`https://TOKEN@gh-proxy.com/github.com/user/repo.git`
 
+## ✅ 已验证通过的 CI 配置
+- **Flutter 3.24.0**, **Gradle 8.10.2**, **AGP 8.4.0**, **Kotlin 1.9.22**
+- compileSdk 34, targetSdk 34, minSdk 24, NDK 25.1.8937393
+- Java 17 (temurin), JVM target 17
+- **flutter_tts 必须锁定 4.2.3**（4.2.4+ 的 Kotlin 代码与 1.9.x 编译器不兼容）
+- 构建命令：`flutter build apk --release --target-platform android-arm64`
+- 每次构建前必须清 Gradle JAR 缓存，否则可能 bcprov 损坏
+
+## 将来升级任何版本时
+- **每次只能改一个变量**，改完等 CI 结果
+- flutter_tts 升级前测试其 Kotlin 源码是否兼容项目 Kotlin 版本
+- AGP 升级检查内部 Kotlin stdlib 版本是否与项目 Kotlin 版本冲突
+
 ## 审核清单（推前必查）
 1. ToneEngine evaluate() — 取最严重 action（block > demote > allow）
 2. FeedFetcher — 有 User-Agent，_fetchJsonFeed 有 try-catch

@@ -73,18 +73,8 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-final themeModeProvider = Provider<ThemeMode>((ref) {
-  final prefs = ref.watch(preferencesControllerProvider);
-  switch (prefs.themeMode) {
-    case AppThemeMode.light:
-      return ThemeMode.light;
-    case AppThemeMode.dark:
-      return ThemeMode.dark;
-    case AppThemeMode.reading:
-      return ThemeMode.light;
-    case AppThemeMode.system:
-      return ThemeMode.system;
-  }
+final appThemeModeProvider = Provider<AppThemeMode>((ref) {
+  return ref.watch(preferencesControllerProvider).themeMode;
 });
 
 ThemeData _readingTheme() {
@@ -110,7 +100,7 @@ class YoyotimeApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    final themeMode = ref.watch(themeModeProvider);
+    final appThemeMode = ref.watch(appThemeModeProvider);
 
     ref.listen<bool>(popupVisibleProvider, (_, visible) {
       if (!visible) return;
@@ -139,10 +129,27 @@ class YoyotimeApp extends ConsumerWidget {
 
     final readingTheme = _readingTheme();
 
+    ThemeMode themeMode;
+    ThemeData theme;
+    switch (appThemeMode) {
+      case AppThemeMode.light:
+        themeMode = ThemeMode.light;
+        theme = lightTheme;
+      case AppThemeMode.dark:
+        themeMode = ThemeMode.dark;
+        theme = darkTheme;
+      case AppThemeMode.reading:
+        themeMode = ThemeMode.light;
+        theme = readingTheme;
+      case AppThemeMode.system:
+        themeMode = ThemeMode.system;
+        theme = lightTheme;
+    }
+
     return MaterialApp.router(
       title: '悠悠时光',
       routerConfig: router,
-      theme: themeMode == ThemeMode.light ? lightTheme : lightTheme,
+      theme: theme,
       darkTheme: darkTheme,
       themeMode: themeMode,
       debugShowCheckedModeBanner: false,

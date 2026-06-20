@@ -1,4 +1,5 @@
 import '../../model/content_item.dart';
+import '../../model/feedback_action.dart';
 import '../../repository/feed_source_repository.dart';
 import '../../repository/content_repository.dart';
 import '../tone_engine.dart';
@@ -25,7 +26,7 @@ class FetchFeedUseCase {
 
   Future<FeedResult> execute({
     required List<String> blocklist,
-    required Map<String, dynamic> feedback,
+    required Map<String, FeedbackAction> feedback,
     int maxItems = 10,
   }) async {
     final allItems = await _feedSource.fetchAll();
@@ -34,10 +35,7 @@ class FetchFeedUseCase {
 
     filtered = filtered.where((item) => !item.matchesBlocklist(blocklist)).toList();
 
-    filtered = filtered.where((item) {
-      final fb = feedback[item.id];
-      return fb == null || fb.toString().contains('like') || fb.toString().contains('bookmark');
-    }).toList();
+    filtered = filtered.where((item) => item.matchesFeedback(feedback)).toList();
 
     final top = filtered.length > maxItems ? filtered.sublist(0, maxItems) : filtered;
 
