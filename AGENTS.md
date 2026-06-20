@@ -16,8 +16,8 @@
 
 ## 三大空间
 - 🌅 今日 — 10 条精选内容（RSS → 语气过滤 → 反偏好 → 展示）
-- 🎧 听 — 语音消费场景（待实现）
-- 🕊️ 我 — 偏好设置、声音调整、分享、检查更新
+- 🎧 听 — 语音消费场景（队列播放 + 速度/语音切换）
+- 🕊️ 我 — 偏好设置、声音调整、分享、检查更新、阅读回顾
 
 ## 四大护城河
 1. 语气引擎（Tone Engine）— 配置驱动（assets/config/tone_rules.json），按分类 block/demote/allow
@@ -85,6 +85,7 @@ powershell -ExecutionPolicy Bypass -File preflight.ps1
 - compileSdk 34, targetSdk 34, minSdk 24, NDK 25.1.8937393
 - Java 17 (temurin), JVM target 17
 - **flutter_tts 必须锁定 4.2.3**（4.2.4+ 的 Kotlin 代码与 1.9.x 编译器不兼容）
+- **pubspec.lock 已提交**，CI 构建确定可复现
 - 构建命令：`flutter build apk --release --target-platform android-arm64`
 - 每次构建前必须清 Gradle JAR 缓存，否则可能 bcprov 损坏
 
@@ -102,3 +103,4 @@ powershell -ExecutionPolicy Bypass -File preflight.ps1
 6. 听 tab — 队列非空时显示播放列表 + 控制栏；空时提示去今日添加内容；右上角切换语音设置
 7. TBK/PDD 降级 — 无 API key 且无商品时显示"请先配置商品来源" + 去配置按钮
 8. 变量命名 — 避免 controller_ 等冲突名
+9. voice_input_dialog — showDialog().then() 靠外（不要 StatefulBuilder().then()）
