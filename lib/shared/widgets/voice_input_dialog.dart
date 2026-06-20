@@ -60,10 +60,10 @@ Future<String?> showVoiceInputDialog(BuildContext context, {String hint = 'è¯·è¯
             ],
           );
         },
-      ).then((result) async {
-        await speech.stop();
-        return result;
-      });
+      );
     },
-  );
+  ).then((result) async {
+    await speech.stop();
+    return result;
+  });
 }
