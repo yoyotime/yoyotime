@@ -22,7 +22,7 @@ void main() {
     await container.read(tbkConfigProvider).init();
 
     addTearDown(() {
-      container.read(popupServiceProvider).dispose();
+      container.read(popupServiceProvider).stop();
       container.dispose();
     });
 
@@ -32,7 +32,8 @@ void main() {
         child: const YoyotimeApp(),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump();
+    container.read(popupServiceProvider).stop();
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
